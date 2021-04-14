@@ -11,7 +11,7 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" />
+          {{ name }}
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -20,12 +20,12 @@
           </router-link>
           <router-link to="/message">
             <el-dropdown-item>
-              <el-badge :value="200" :max="99" class="item">
+              <el-badge :value="m_count" :max="m_count" class="item">
                 消息
               </el-badge>
             </el-dropdown-item>
           </router-link>
-        
+
           <el-dropdown-item divided @click.native="logout">
             <span style="display: block">Log Out</span>
           </el-dropdown-item>
@@ -39,8 +39,15 @@
 import { mapGetters } from "vuex";
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
-
+import store from "@/store";
+import { getMessageList } from "@/api/message";
 export default {
+  data() {
+    return {
+      m_count: null,
+      name: store.getters.username,
+    };
+  },
   components: {
     Breadcrumb,
     Hamburger,
@@ -48,7 +55,16 @@ export default {
   computed: {
     ...mapGetters(["sidebar", "avatar"]),
   },
+  created() {
+    this.getMessageList();
+  },
   methods: {
+    getMessageList() {
+      getMessageList().then((response) => {
+        console.log(response);
+        this.m_count = response.count;
+      });
+    },
     toggleSideBar() {
       this.$store.dispatch("app/toggleSideBar");
     },

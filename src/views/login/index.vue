@@ -1,6 +1,7 @@
 <template>
   <div class="login-container">
     <el-form
+      v-if="!ifChange"
       ref="loginForm"
       :model="loginForm"
       :rules="loginRules"
@@ -9,7 +10,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">中国商飞北研中心</h3>
       </div>
 
       <el-form-item prop="username">
@@ -54,20 +55,98 @@
         type="primary"
         style="width: 100%; margin-bottom: 30px"
         @click.native.prevent="handleLogin"
-        >Login</el-button
+        >登录</el-button
       >
 
       <div class="tips">
-        <span style="margin-right: 20px">username: admin</span>
-        <span> password: any</span>
+        <span style="margin-right: 20px"
+          >如果忘了密码，请联系超级管理员更改密码</span
+        >
+        <span
+          @click="changePwd"
+          v-on:mouseover="changeActive($event)"
+          v-on:mouseout="removeActive($event)"
+          class="changeRouter"
+          >更改密码
+        </span>
       </div>
+    </el-form>
+
+    <el-form
+      status-icon
+      ref="loginForm"
+      :model="loginForm"
+      v-if="ifChange"
+      
+      class="login-form"
+      :rules="loginRules"
+      auto-complete="on"
+      label-position="left"
+    >
+      <div class="title-container">
+        <h3 class="title">中国商飞北研中心</h3>
+         <h3 class="title">第一次登录请重置密码</h3>
+      </div>
+      <el-form-item  prop="pass">
+        <el-input
+          :key="passwordType"
+          ref="pass"
+          v-model="loginForm.pass"
+          :type="passwordType"
+          placeholder="新密码"
+          tabindex="2"
+          auto-complete="on"
+        />
+        <!-- <el-input
+          type="password"
+          v-model="loginForm.pass"
+          autocomplete="off"
+        ></el-input> -->
+
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
+        </span>
+      </el-form-item>
+
+      <el-form-item  prop="checkPass">
+        <!-- <el-input
+          type="password"
+          v-model="loginForm.checkPass"
+          autocomplete="off"
+        ></el-input> -->
+        <el-input
+          :key="passwordType"
+          ref="checkPass"
+          v-model="loginForm.checkPass"
+          :type="passwordType"
+          placeholder="确认密码"
+          tabindex="2"
+          auto-complete="on"
+        />
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
+        </span>
+      </el-form-item>
+
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width: 100%; margin-bottom: 30px"
+        @click.native.prevent="submitCPwd"
+        >确认修改</el-button
+      >
     </el-form>
   </div>
 </template>
 
 <script>
 import { validUsername } from "@/utils/validate";
-
+import { login, logout, getInfo } from "@/api/user";
+import { changeUser } from "@/api/user";
 export default {
   name: "Login",
   data() {
@@ -85,27 +164,57 @@ export default {
         callback();
       }
     };
+    const confirmPassword = (rule, value, callback) => {
+      if (value !== this.loginForm.npassword) {
+        callback(new Error("和新密码保持一致"));
+      } else {
+        callback();
+      }
+    };
+    var validatePass = (rule, value, callback) => {
+     if (value.length < 6) {
+        callback(new Error("The password can not be less than 6 digits"));
+      } else {
+        callback();
+      }
+    };
+    var validatePass2 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
+      } else if (value !== this.loginForm.pass) {
+        callback(new Error("两次输入密码不一致!"));
+      } else {
+        callback();
+      }
+    };
     return {
       loginForm: {
         username: "admin",
-        password: "111111",
+        password: "18514427806",
       },
       loginRules: {
+        pass: [{ validator: validatePass, trigger: "blur" }],
+        checkPass: [{ validator: validatePass2, trigger: "blur" }],
         username: [
           { required: true, trigger: "blur", validator: validateUsername },
         ],
         password: [
           { required: true, trigger: "blur", validator: validatePassword },
         ],
+        npassword: [
+          { required: true, trigger: "blur", validator: validatePassword },
+        ],
+        cpassword: [
+          { required: true, trigger: "blur", validator: confirmPassword },
+        ],
       },
       loading: false,
       passwordType: "password",
       redirect: undefined,
+      ifChange: false,
     };
   },
-  created() {
-    
-  },
+  created() {},
   watch: {
     $route: {
       handler: function (route) {
@@ -115,7 +224,26 @@ export default {
     },
   },
   methods: {
-  
+    submitCPwd() {
+      changeUser(this.loginForm.username, {
+        password: this.loginForm.pass,
+        u_status: 1,
+      }).then((response) => {
+        //this.logout();
+        this.$router.go(0);
+        //location.reload(true)
+      });
+    },
+    changeActive($event) {
+      $event.currentTarget.className = "active changeRouter";
+    },
+    removeActive($event) {
+      $event.currentTarget.className = "noactive changeRouter";
+    },
+    changePwd() {
+      console.log("change");
+      this.ifChange = true;
+    },
     showPwd() {
       if (this.passwordType === "password") {
         this.passwordType = "";
@@ -126,30 +254,55 @@ export default {
         this.$refs.password.focus();
       });
     },
+    checkStatus(username) {
+      return new Promise((resolve, reject) => {
+        getInfo(username).then((response) => {
+          resolve(response.u_status);
+        });
+      });
+    },
     handleLogin() {
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          this.$store
-            .dispatch("user/login", this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || "/" });
-              this.loading = false;
-            })
-            .catch(() => {
-              this.loading = false;
-            });
+      var valid = true;
+      //check status
+      var username = this.loginForm.username;
+      this.checkStatus(username).then((data) => {
+        if (data == 0) {
+          console.log("首次登录");
+          this.ifChange = true;
+          //this.$router.push({path:"/changepwd"})
         } else {
-          console.log("error submit!!");
-          return false;
+          if (valid) {
+            this.loading = true;
+            this.$store
+              .dispatch("user/login", this.loginForm)
+              .then(() => {
+                this.$router.push({ path: this.redirect || "/" });
+                this.loading = false;
+              })
+              .catch(() => {
+                this.loading = false;
+              });
+          } else {
+            console.log("登录错误");
+            return false;
+          }
         }
       });
+      // this.$refs.loginForm.validate((valid) => {
+
+      // });
     },
   },
 };
 </script>
 
 <style lang="scss">
+.active {
+  cursor: pointer;
+}
+.noactive {
+  cursor: auto;
+}
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
@@ -235,7 +388,11 @@ $light_gray: #eee;
     width: 30px;
     display: inline-block;
   }
-
+  .changeRouter {
+    display: inline-block;
+    float: right;
+    color: #409eff;
+  }
   .title-container {
     position: relative;
 

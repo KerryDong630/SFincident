@@ -37,6 +37,12 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/changepw',
+    component: () => import('@/views/login/changepw'),
+    hidden: true,
+    name:"changepw"
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -56,9 +62,20 @@ export const constantRoutes = [
       path: '/message',
       name: 'Message',
       component: () => import('@/views/message/index'),
-      meta: { title: 'MESSAGE', icon: 'dashboard' }
+      meta: { title: '消息', icon: 'dashboard' }
     }]
   },
+  // {
+  //   path: '/scanCode',
+  //   component: Layout,
+  //   redirect: '/scanCode',
+  //   children: [{
+  //     path: '/scanCode',
+  //     name: 'ScanCode',
+  //     component: () => import('@/views/scanCode/index'),
+  //     meta: { title: "扫码", icon: 'el-icon-full-screen' }
+  //   }]
+  // },
   {
     path: '/addUser',
     component: Layout,
@@ -99,6 +116,7 @@ export const constantRoutes = [
   },
   {
     path: '/updateUser',
+    redirect: '/updateUser',
     component: Layout,
     name: 'updateUser',
     children: [{
@@ -114,11 +132,11 @@ export const scynRoutes = {
 
   'admin': {
     'path': '/system',
-    'redirect': '/system/users',
+    'redirect': '/system',
     'component': 'Layout',
     'meta': {
       'title': '系统管理',
-      'icon': 'form'
+      'icon': 'el-icon-setting'
     },
 
     'children': [
@@ -128,7 +146,7 @@ export const scynRoutes = {
         'component': 'system/users/index',
         'meta': {
           'title': '用户管理',
-          'icon': 'table'
+          'icon': 'el-icon-setting'
         }
       }
     ]
@@ -140,7 +158,7 @@ export const scynRoutes = {
     'redirect': '/information',
     'meta': {
       'title': '基础资料',
-      'icon': 'table'
+      'icon': 'el-icon-folder-opened'
     },
     'children': [
       {
@@ -149,7 +167,7 @@ export const scynRoutes = {
         'component': 'VendorInfo/index',
         'meta': {
           'title': '委托商管理',
-          'icon': 'table'
+          // 'icon': 'table'
         }
       }, {
         'path': '/trialDispatch',
@@ -157,7 +175,15 @@ export const scynRoutes = {
         'component': 'TrialDispatch/index',
         'meta': {
           'title': '试验派工类型',
-          'icon': 'table'
+          // 'icon': 'table'
+        }
+      },{
+        'path': '/fileMaintain',
+        'name': 'fileMaintain',
+        'component': 'fileMaintain/index',
+        'meta': {
+          'title': '模板文件维护',
+          // 'icon': 'table'
         }
       }]
   },
@@ -174,17 +200,17 @@ export const scynRoutes = {
         'component': 'equipment/index',
         'meta': {
           'title': '设备管理',
-          'icon': 'table'
+          'icon': 'el-icon-set-up'
         }
       }]
   },
   'warehouse': {
-    'path': '/warehouse',
-    'redirect': '/warehouse',
+    'path': '/inStore',
+    'redirect': '/inStore',
     'component': 'Layout',
     'meta': {
       'title': '仓库管理',
-      'icon': 'form'
+      'icon': 'el-icon-house'
     },
     'children': [
       {
@@ -193,61 +219,90 @@ export const scynRoutes = {
         'component': 'inStore/index',
         'meta': {
           'title': '入库管理',
-          'icon': 'table'
+          // 'icon': 'el-icon-shopping-cart-1'
         }
       },
       {
         'path': '/newInStore',
         'name': 'newInStore',
         'component': 'inStore/newInStore',
+        'hidden':true,
         'meta': {
           'title': '新增入库',
-          'icon': 'table'
+          // 'icon': 'el-icon-shopping-cart-full'
         }
       }, {
+        'path': '/inputCode',
+        'name': 'inputCode',
+        'component': 'inStore/putCode',
+        'hidden':true,
+        'meta': {
+          'title': '试验件编码录入',
+          // 'icon': 'el-icon-edit'
+        }
+      }, 
+      {
+        'path': '/scanInStore',
+        'name': 'scanInStore',
+        'component': 'inStore/scanCode',
+        'hidden':true,
+        'meta': {
+          'title': '扫码入库',
+          // 'icon': 'el-icon-aim'
+        }
+      },{
         'path': '/outStore',
         'name': 'outStore',
         'component': 'outStore/index',
         'meta': {
           'title': '出库管理',
-          'icon': 'table'
+          // 'icon': 'el-icon-shopping-cart-1'
         }
       },
       {
         'path': '/newOutStore',
         'name': 'newOutStore',
         'component': 'outStore/newOutStore',
+        hidden: true,
         'meta': {
           'title': '新增出库',
-          'icon': 'table'
+          // 'icon': 'el-icon-sold-out'
         }
       }
     ]
   },
-  "laboratory":{
-      'path': '/laboratory',
-      'name': 'laboratory',
-      'redirect': '/project/laboratory/',
-      'component': 'Layout',
-      'meta': {
-        'title': '工单-实验室',
-        'icon': 'table'
+  "laboratory": {
+    'path': '/laboratory',
+    'name': 'laboratory',
+    'redirect': '/project/laboratory/',
+    'component': 'Layout',
+    'meta': {
+      'title': '工单-实验室',
+      'icon': 'el-icon-files'
+    },
+    children: [
+      {
+        path: '/incidentOverview',
+        component: 'project/laboratory/incidentOverview/index',
+        name: 'incidentOverview',
+        meta: { title: '工单 实验室主管' }
       },
-      children: [
-        {
-          path: '/incidentOverview',
-          component: 'project/laboratory/incidentOverview/index',
-          name: 'incidentOverview',
-          meta: { title: '工单 实验室主管' }
-        },
-        {
-          path: '/assignIncident',
-          component: 'project/laboratory/assignIncident/index',
-          name: 'assignIncident',
-          meta: { title: '实验室主管-工单分配' }
-        }
-      ]
-    
+      {
+        path: '/assignIncident',
+        component: 'project/laboratory/assignIncident/index',
+        name: 'assignIncident',
+        'hidden':true,
+        meta: { title: '实验室主管-工单分配' }
+      },
+      {
+        path: '/detailIncident',
+        component: 'project/laboratory/incidentDetail/index',
+        name: 'detailIncident',
+        'hidden':true,
+        meta: { title: '实验室主管-工单详情' }
+      }
+    ]
+
   },
   "experimenter":
   {
@@ -264,30 +319,32 @@ export const scynRoutes = {
         path: '/experIncident',
         component: 'project/experimenter/incident/index',
         name: 'experIncident',
-        meta: { title: '工单' }
+        meta: { title: '工单-试验员' }
       },
       {
         path: '/incidentprocess',
         component: 'project/experimenter/process/index',
         name: 'incidentprocess',
+        'hidden':true,
         meta: { title: '领取工单任务' }
       }
     ]
   },
-  'project':{
+  'project': {
     'path': '/project',
     'redirect': '/project/project',
     'component': 'Layout',
     'name': "project",
     'meta': {
       'title': '项目管理',
-      'icon': 'form'
+      'icon': 'el-icon-edit'
     },
     'children': [
       {
         path: '/newPoject',
         component: 'project/project/newProject/index',
         name: 'newPoject',
+        'hidden':true,
         meta: { title: '新建项目' }
       },
       {
@@ -299,8 +356,8 @@ export const scynRoutes = {
     ]
   },
   'program': {
-    'path': '/program',
-    'redirect': '/project/program/managepro',
+    'path': '/managepro',
+    'redirect': '/managepro',
     'component': 'Layout',
     'name': "program",
     'meta': {
@@ -318,12 +375,14 @@ export const scynRoutes = {
         path: '/newpro',
         component: 'project/program/newProgram/index',
         name: 'newProgram',
+        'hidden':true,
         meta: { title: '新建试验任务' }
       },
       {
         path: '/newProincident',
         component: 'project/program/newIncident/index',
         name: 'newProincident',
+        'hidden':true,
         meta: { title: '创建工单' }
       },
       {
@@ -343,11 +402,11 @@ export const scynRoutes = {
       //     'icon': 'table'
       //   },
       //   children: [
-         
+
       //   ]
       // },
-    
-      
+
+
     ]
   }
 }

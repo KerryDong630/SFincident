@@ -92,3 +92,28 @@ div:focus {
     vertical-align: middle;
     
 }
+.upload{
+  display: inline-block;
+    margin-left: 5px;
+}
+.el-select{
+  width: 100%;
+}
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
+}
+.el-step__description.is-process {
+  color: #409eff;
+}
+.el-step__title.is-process {
+
+  color: #409eff;
+}
+.el-step__head.is-process {
+  color: #409eff;
+  border-color: #409eff;
+}

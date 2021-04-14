@@ -11,7 +11,7 @@
 import UploadExcelComponent from '@/components/UploadExcel/index.vue'
 
 export default {
-  name: 'UploadExcel',
+  name: 'UploadUsers',
   components: { UploadExcelComponent },
   data() {
     return {

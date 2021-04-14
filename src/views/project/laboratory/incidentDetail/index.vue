@@ -1,10 +1,10 @@
 <template>
   <el-container>
-    <el-header style="line-height: 60px">领取工单任务 </el-header>
+    <el-header style="line-height: 60px">工序负责人-工单分配 </el-header>
     <el-main>
       <el-form class="demo-form-inline">
         <el-row :gutter="40">
-          <el-col :xs="12" :sm="12" :lg="12">
+          <el-col :xs="12" :sm="12" :lg="12" class="parent">
             <el-form-item label="试验主管">
               {{ form.create_name }}
             </el-form-item>
@@ -56,9 +56,12 @@
           :description="'当前工序负责人:' + pre.process_owner"
         ></el-step>
       </el-steps>
-      <el-table stripe :data="form.componentlist" 
-      :cell-style="{ padding: '0', height: '10rem' }"
-      style="margin-top: 20px">
+      <el-table
+        stripe
+        border
+        :data="form.componentlist"
+        style="margin-top: 20px"
+      >
         <el-table-column
           label="试验件编码"
           prop="component_unique_id"
@@ -71,8 +74,6 @@
           key="original_id"
         >
         </el-table-column>
-        <el-table-column label="实验员" prop="experimenter" key="experimenter">
-        </el-table-column>
         <el-table-column
           label="试验件状态"
           prop="component_status1"
@@ -82,65 +83,39 @@
             {{ getStatus(scope.row) }}
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作1">
+        <el-table-column label="实验员" prop="experimenter" key="experimenter">
+        </el-table-column>
+        <el-table-column fixed="right" label="实验单" width="150">
           <template slot-scope="scope">
             <el-button
-              type="success"
+              type="text"
               size="small"
-              v-if="scope.row.component_status1 == 2"
-              @click="submitComponent(scope.row)"
+               v-if="scope.row.component_status1 == 4"
+              @click="loadComponent(scope.$index, scope.row)"
             >
-              提交
+              下载
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作2" width="150">
+        <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
             <el-button
               type="text"
               size="small"
-              @click="downloadComponent(scope.$index, scope.row)"
+              v-if="scope.row.component_status1 == 4"
+              @click="submitComponent(scope.row)"
             >
-              下载实验单
-            </el-button>
-            <el-upload
-              ref="upload"
-              action="https://jsonplaceholder.typicode.com/posts/"
-              :limit="1"
-              :file-list="fileList"
-              class="upload"
-              :http-request="uploadFile"
-            >
-              <!--此处使用自定义上传实现http-request-->
-              <el-button
-                slot="trigger"
-                type="text"
-                 size="small"
-                @click="loadComponent(scope.$index, scope.row)"
-                >上传实验单</el-button
-              >
-            </el-upload>
-            <!-- <el-button
-              type="text"
-              size="small"
-              @click="removeComponent(scope.$index, scope.row)"
-            >
-              上传实验单
-            </el-button> -->
-            <el-button
-              type="danger"
-              size="small"
-              @click="removeComponent(scope.$index, scope.row)"
-            >
-              报损
+              确认
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-main>
     <el-footer>
-      <!-- <el-button type="primary" @click="onSubmit">提交</el-button>
-      <el-button @click="onCancle">取消</el-button> -->
+      <el-button type="primary" @click="onSubmit" v-if="processStatus == 3"
+        >提交</el-button
+      >
+      <el-button @click="onCancle" v-if="processStatus == 3">取消</el-button>
     </el-footer>
   </el-container>
 </template>
@@ -153,10 +128,10 @@ import {
   getAssignProcess,
   putAssignProcess,
   putProcessStatus,
+  checkProcess,
+  getProcessStatus,
 } from "@/api/process";
 import { addComponents } from "@/api/component";
-import { uploadFile } from "@/api/file";
-
 const componentStatus = {
   0: "待分配",
   1: "已分配",
@@ -169,27 +144,13 @@ export default {
     return {
       program_form_url: "",
       form_url: "",
-      fileName: "",
-      forms: [],
-      fileList: [],
-      currentRow: {},
-      // 允许的文件类型
-      fileType: [
-        "xls",
-        "xlsx",
-        "pdf",
-        "doc",
-        "docx",
-        "txt",
-        "jpg",
-        "png",
-        "jpeg",
-      ],
       componentStatus,
       current_step: null,
       process_id: null,
       users: null,
+      fileName: "",
       form: {},
+      processStatus: null,
     };
   },
   computed: {
@@ -203,83 +164,11 @@ export default {
   created() {},
   mounted: function () {
     this.process_id = this.$route.query.process_id;
+    this.getProcessStatus(this.process_id);
     this.getAssignList();
     this.getUsersList();
   },
   methods: {
-    uploadFile(file) {
-      //更新检查单
-      const param = new FormData();
-      param.append("file", file.file);
-
-      param.append("category", "component"); //component,
-      uploadFile(param)
-        .then((response) => {
-          // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
-          var file_id = response.file_id;
-
-          this.$notify({
-            title: "Success",
-            message: "上传成功",
-            type: "success",
-          });
-          this.currentRow["experiment_sheet_id"] = file_id;
-          putAssignProcess({
-            data: [this.currentRow],
-          }).then((respones) => {
-            console.log(respones);
-            this.$notify({
-              title: "Success",
-              message: "提交成功",
-              type: "success",
-            });
-            this.getAssignList();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    checkFile() {
-      var flag = true;
-      var tip = "";
-      console.log("check");
-      var files = this.$refs.upload.uploadFiles;
-      files.forEach((item) => {
-        // 文件过大
-        if (item.size > this.fileSize * 1024 * 1024) {
-          flag = false;
-          tip = " 文件超过" + this.fileSize + "M";
-        }
-        // 文件类型不属于可上传的类型
-        if (!this.fileType.includes(lastSubstring(item.name, "."))) {
-          flag = false;
-          tip = " 文件类型不可上传";
-        }
-      });
-      if (!flag) {
-        message("error", tip);
-      }
-      return flag;
-    },
-    loadComponent(index, row) {
-      this.currentRow = row;
-    },
-    downloadComponent(index, row) {
-      var sheet_id = this.form.experiment_sheet_id;
-      this.fileName =
-        this.form.order_number +
-        "_" +
-        this.form.process_name +
-        "_" +
-        index.toString();
-      this.form_url = global_msg.host + "/getFile/" + sheet_id;
-      var url = this.form_url;
-      this.getBlob(url).then((blob) => {
-        this.saveAs(blob, this.fileName);
-      });
-    },
     downLoadProgram: function () {
       this.fileName = this.form.order_number + "_试验大纲";
       this.program_form_url =
@@ -327,16 +216,22 @@ export default {
         window.URL.revokeObjectURL(link.href);
       }
     },
+
+    getProcessStatus: function (process_id) {
+      getProcessStatus(process_id).then((response) => {
+        this.processStatus = response.process_status;
+      });
+    },
     submitComponent: function (row) {
-      //试验件状态变为待审核
-      this.$confirm("确定提交此试验件?", "提示", {
+      //试验件状态变为已完成
+      this.$confirm("确定此试验件已完成?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
           console.log(row);
-          row["component_status1"] = 4;
+          row["component_status1"] = 3; //已完成
           putAssignProcess({
             data: [row],
           }).then((respones) => {
@@ -356,35 +251,72 @@ export default {
           });
         });
     },
-    putComponentStatus() {},
     getStatus: function (row) {
       return componentStatus[row.component_status1];
     },
-    onSubmit() {
+    loadComponent(index, row) {
+      var sheet_id = row.experiment_sheet_id;
+      this.fileName =
+        this.form.order_number +
+        "_" +
+        this.form.process_name +
+        "_" +
+        index.toString();
+      this.form_url = global_msg.host + "/getFile/" + sheet_id;
+      var url = this.form_url;
+      this.getBlob(url).then((blob) => {
+        this.saveAs(blob, this.fileName);
+      });
+    },
+    open(callback) {
+      this.$confirm("此操作将确认此工序完成?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          callback();
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    checkStatus() {
+      var flag = true;
+      try {
+        this.form.componentlist.forEach((element) => {
+          if (element["component_status1"] !== 3) {
+            flag = false;
+            throw new Error("End Loop");
+          }
+        });
+      } catch (error) {}
+      return flag;
+    },
+    submitProcess() {
       var result = {
-        data: this.form.componentlist,
-      };
-      var processStatus = {
         process_id: this.process_id,
-        process_status: 2, //工序状态变为已分配
       };
-      putAssignProcess(result).then((respones) => {
-        console.log(respones);
 
+      checkProcess(result).then((respones) => {
+        console.log(respones);
         this.$notify({
           title: "Success",
-          message: "分配成功",
+          message: "提交成功",
           type: "success",
         });
       });
-      putProcessStatus(processStatus).then((response) => {
-        console.log(response);
-        this.$notify({
-          title: "Success",
-          message: "分配成功",
-          type: "success",
-        });
-      });
+    },
+    onSubmit() {
+      var flag = this.checkStatus();
+      if (flag) {
+        this.open(this.submitProcess);
+      } else {
+        this.$message.error("有试验件未完成，不可以提交当前工单");
+      }
     },
     onCancle() {},
     getCurrentStep(process_id, processes) {

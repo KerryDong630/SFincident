@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-header class="app-header"> 试验任务管理 </el-header>
     <el-main>
-      <div class="filter-container">
+      <!-- <div class="filter-container">
         <el-input
           v-model="listQuery.projectId"
           placeholder="项目编号号："
@@ -16,8 +16,8 @@
           style="width: 200px"
           class="filter-item"
           @keyup.enter.native="handleFilter"
-        />
-        <el-select
+        /> -->
+      <!-- <el-select
           v-model="listQuery.projectStatus"
           placeholder="当前状态："
           clearable
@@ -30,8 +30,8 @@
             :label="item.display_name"
             :value="item.key"
           />
-        </el-select>
-        <el-button
+        </el-select> -->
+      <!-- <el-button
           v-waves
           class="filter-item"
           type="primary"
@@ -40,7 +40,7 @@
         >
           搜索
         </el-button>
-      </div>
+      </div> -->
       <div class="tool-button">
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
@@ -62,17 +62,79 @@
         highlight-current-row
         style="width: 100%"
       >
+        <el-table-column key="id" label="编号" prop="id">
+          <template slot-scope="scope">
+            {{ getId(scope.$index) }}
+          </template>
+        </el-table-column>
         <el-table-column
-          :key="col.prop"
-          :label="col.label"
-          :prop="col.prop"
-          v-for="col in tableColumnList"
+          key="project_name"
+          label="项目名称"
+          prop="project_name"
+          :filters="proNameFilters"
+          :filter-method="filterHandler"
+        >
+        </el-table-column>
+        <el-table-column
+          key="task_name_book"
+          label="任务书名称"
+          prop="task_name_book"
+        >
+        </el-table-column>
+        <el-table-column
+          key="order_number"
+          label="委托单号"
+          prop="order_number"
+          :filters=orderNumFilters
+          :filter-method="filterHandler"
+        >
+        </el-table-column>
+        <el-table-column
+          key="program_code"
+          label="试验大纲编码"
+          prop="program_code"
+        >
+        </el-table-column>
+        <el-table-column key="sample_num" label="样品数量" prop="sample_num">
+        </el-table-column>
+        <el-table-column key="in_store_num" label="已入库" prop="in_store_num">
+        </el-table-column>
+        <el-table-column key="w_sum" label="等待入库" prop="w_sum">
+        </el-table-column>
+        <el-table-column
+          key="in_experiment"
+          label="实验中"
+          prop="in_experiment"
+        >
+        </el-table-column>
+        <el-table-column key="is_finish" label="成品" prop="is_finish">
+        </el-table-column>
+        <el-table-column
+          key="create_time"
+          sortable
+          label="项目创建时间"
+          prop="create_time"
+        >
+        </el-table-column>
+        <el-table-column
+          key="finish_time"
+          label="项目预计结束时间"
+          prop="finish_time"
+        >
+        </el-table-column>
+        <el-table-column key="res_name" label="试验主管" prop="res_name">
+        </el-table-column>
+        <el-table-column
+          key="create_name"
+          label="项目负责人"
+          prop="create_name"
         >
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
             <el-button
-              v-if="row.haveNum > 0"
+              style="margin-left: 0px"
+              v-if="row.in_store_num > 0"
               type="text"
               size="small"
               @click="createIncident(row)"
@@ -80,14 +142,16 @@
               新建工单
             </el-button>
             <el-button
-              v-if="row.waitNum > 0"
+              v-if="row.w_sum > 0"
               type="text"
               size="small"
+              style="margin-left: 0px"
               @click="handleInStore(row)"
             >
               确认入库
             </el-button>
             <el-button
+              style="margin-left: 0px"
               v-if="row.status !== 0"
               type="text"
               size="small"
@@ -95,7 +159,6 @@
             >
               查看
             </el-button>
-            
           </template>
         </el-table-column>
       </el-table>
@@ -110,7 +173,7 @@
               :lg="8"
             >
               <el-form-item :label="key">
-                  <el-input :value="value"  :disabled="true"></el-input>
+                <el-input :value="value" :disabled="true"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -128,14 +191,55 @@
 <script>
 //import myTable from "../table/simpleTable";
 //import ComplexTable from "@/views/table/complex-table";
-import { fetchList } from "@/api/project";
+import { getProgramsList } from "@/api/program";
+
 const statusTypeOptions = [
   { display_name: "未创建任务", key: "0" },
   { display_name: "已创建任务", key: "1" },
   { display_name: "任务中", key: "2" },
   { display_name: "完成", key: "3" },
 ];
+const lables = {
+  project_name: "项目名称",
+  company: "委托公司名称",
+  task_id: "任务书编码",
+  program_code: "试验大纲编码",
+  task_name_book: "试验任务书名称",
+  order_time: "委托单时间",
+  finish_time: "项目预计结束时间",
+  create_time: "项目创建时间",
+  res_name: "试验主管",
+  create_name: "项目负责人",
+  remarks: "备注信息",
+  test_item: "检测项目名称",
+  order_number: "委托单号",
+  contract_id: "试验任务课题组/合同号",
+  sample_name: "样品名称",
+  sample_material: "样品材料",
+  sample_num: "样品数量",
+  in_store_num: "已入库",
+  in_experiment: "实验中",
 
+  w_sum: "等待入库",
+  is_finish: "成品",
+  id: "任务编号",
+};
+const showColumns = [
+  "id",
+  "project_name",
+  "task_id",
+  "program_code",
+  "sample_num",
+  "in_store_num",
+  "w_sum",
+  "in_experiment",
+  "is_finish",
+  "create_time",
+  "finish_time",
+  "res_name",
+  "order_number",
+  "create_name",
+];
 export default {
   name: "management",
   data() {
@@ -143,8 +247,12 @@ export default {
       dialogPvVisible: false,
       tableColumnList: [],
       list: null,
+      proNameFilters: [],
+      orderNumFilters: [],
       pvData: {},
+      showColumns,
       statusTypeOptions,
+      lables,
       listLoading: true,
       listQuery: {
         projectId: undefined,
@@ -157,10 +265,31 @@ export default {
     this.getList();
   },
   methods: {
-    handleInStore(){
+    refresh(){
+      this.getList();
+    },
+    exportExecel(){
+
+    },
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      return row[property] === value;
+    },
+    getId(index) {
+      return index + 1;
+    },
+    handleInStore(row) {
+      var order_number = row.order_number;
       this.$router.push({
-        path:"/comfirmStore"
-      })
+        path: "/comfirmStore",
+        query: { order_number: order_number },
+      });
+    },
+    createIncident(row) {
+      this.$router.push({
+        path: "/newProincident",
+        query: { order_number: row.order_number },
+      });
     },
     showDetail(row) {
       //查看任务具体内容
@@ -172,26 +301,38 @@ export default {
       this.$router.push({ path: "/newpro" });
     },
     getTableColumnList(list) {
+      this.tableColumnList = [];
       var obj = list[0];
       for (var v in obj) {
-        this.tableColumnList.push({
-          prop: v,
-          label: v,
-        });
+        if (this.showColumns.includes(v)) {
+          this.tableColumnList.push({
+            prop: v,
+            label: this.lables[v],
+          });
+        }
       }
       console.log(this.tableColumnList);
     },
+    getFilter(list) {
+      list.forEach((row) => {
+        this.proNameFilters.push({
+          text: row.project_name,
+          value: row.project_name,
+        });
+        this.orderNumFilters.push({
+          text: row.order_number,
+          value: row.order_number,
+        });
+      });
+    },
     getList() {
       this.listLoading = true;
-      fetchList().then((response) => {
-        this.list = response.data.items;
+      getProgramsList().then((response) => {
+        this.list = response.data;
+        console.log(this.list);
         this.getTableColumnList(this.list);
-        this.total = response.data.total;
+        this.getFilter(this.list);
         this.listLoading = false;
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false;
-        // }, 1.5 * 1000);
       });
     },
   },

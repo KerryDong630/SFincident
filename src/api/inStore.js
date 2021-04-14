@@ -1,13 +1,40 @@
 import request from '@/utils/request'
+import requestdev from '@/utils/request-dev'
 
-export function fetchList(query) {
-  return request({
-    url: '/vue-admin-template/inStore/list',
+export function getInstoreList() {
+  return requestdev({
+    url: '/instores',
     method: 'get',
-    params:{ query }
+  })
+}
+export function addInstore(data) {
+  return requestdev({
+    url: '/instores',
+    method: 'post',
+    data
+  })
+}
+export function putInstore(id,data) {
+  return requestdev({
+    url: '/instore/'+id,
+    method: 'put',
+    data
   })
 }
 
+export function getConfirmInstore(order_number) {
+  return requestdev({
+    url: '/confirmInstore/' + order_number,
+    method: 'get',
+  })
+}
+export function confirmInstore(data) {
+  return requestdev({
+    url: '/confirmInstore',
+    method: 'post',
+    data
+  })
+}
 // export function fetchArticle(id) {
 //   return request({
 //     url: '/vue-element-admin/article/detail',

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-header class="app-header">用户管理</el-header>
     <el-main>
-      <div class="filter-container">
+      <!-- <div class="filter-container">
         <el-input
           v-model="listQuery.projectId"
           placeholder="用户名"
@@ -54,7 +54,7 @@
         >
           搜索
         </el-button>
-      </div>
+      </div> -->
       <div class="tool-button">
         <el-button type="primary" @click="upload">上传表格</el-button>
 
@@ -82,6 +82,8 @@
           :key="col.prop"
           :label="col.label"
           :prop="col.prop"
+          v-bind:filters="filters(col.prop)"
+          :filter-method="filterHandler"
           v-for="col in tableColumnList"
         >
         </el-table-column>
@@ -90,8 +92,11 @@
             <el-button type="text" size="small" @click="updateRole(row)">
               编辑
             </el-button>
-            <el-button type="text" size="small" @click="deleteeRole(row)">
+            <el-button type="text" size="small" @click="confirmDelete(row)">
               删除
+            </el-button>
+             <el-button type="text" size="small" @click="putPassword(row)">
+              重置密码
             </el-button>
           </template>
         </el-table-column>
@@ -101,6 +106,16 @@
 </template>
 
 <script>
+const roles = [
+  { name: "仓库", key: "warehouse" },
+  { name: "任务", key: "program" },
+  { name: "项目", key: "project" },
+  { name: "试验员", key: "experimenter" },
+  { name: "实验室", key: "laboratory" },
+  { name: "设备管理", key: "equipment" },
+  { name: "基础资料", key: "information" },
+  { name: "用户管理", key: "admin" },
+];
 //import myTable from "../table/simpleTable";
 //import ComplexTable from "@/views/table/complex-table";
 //import { getUsersList } from "@/api/user";
@@ -110,11 +125,28 @@ const statusTypeOptions = [
   { display_name: "任务中", key: "2" },
   { display_name: "完成", key: "3" },
 ];
-import { getUsersList } from "@/api/user";
+const showLable = {
+  id: "ID",
+  u_authority: "账号权限",
+  u_department: "部门",
+  username: "账号",
+  u_email: "邮箱",
+  u_id: "用户名",
+  u_name: "员工姓名",
+  u_tele: "手机号",
+};
+import { changeUser } from "@/api/user";
+
+import { getUsersList, deleteUser } from "@/api/user";
 export default {
   name: "users",
   data() {
     return {
+      showLable,
+      filterId: [],
+      filterUname: [],
+      filterDepartment: [],
+      filterRoles: [],
       dialogPvVisible: false,
       tableColumnList: [],
       list: null,
@@ -132,35 +164,132 @@ export default {
     this.getList();
   },
   methods: {
-    upload(){
+    exportExecel() {},
+    handleFilter() {},
+    unique(arr) {
+      return Array.from(new Set(arr));
+    },
+    filters(name) {
+      if (name == "username") {
+        return this.filterUname;
+      }else if(name == "u_id"){
+        return this.filterId
+      }
+    },
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      return row[property] === value;
+    },
+    getFilters(list) {
+      this.filterId = this.unique(
+        list.map((element) => {
+          return element.u_id;
+        })
+      ).map((e) => {
+        return {
+          text: e,
+          value: e,
+        };
+      });
+      this.filterUname = this.unique(
+        list.map((element) => {
+          return element.username;
+        })
+      ).map((e) => {
+        return {
+          text: e,
+          value: e,
+        };
+      });
+    },
+    refresh() {
+      this.getList();
+    },
+    putPassword(row){ 
+      var username = row.username;
+    changeUser(username, {
+        password: '00000000',
+        u_status : 0   
+      }).then((response) => {
+        this.$notify({
+          title: "Success",
+          message: "成功重置用户"+username+"的密码",
+          type: "success",
+        });
+        //this.logout();
+        
+        //location.reload(true)
+      });
+    },
+    confirmDelete(row) {
+      this.$confirm("此操作将永久删除该账号, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.handeldeleteRole(row);
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    handeldeleteRole(row) {
+      var username = row.username;
+      deleteUser(username).then(() => {
+        // this.dialogFormVisible = false;
+        this.$notify({
+          title: "Success",
+          message: "Delete Successfully",
+          type: "success",
+        });
+        this.getList();
+      });
+    },
+    upload() {
       this.$router.push({ path: "/uploadUser" });
-
     },
     updateRole(row) {
       //查看任务具体内容
-      this.$router.push({ path: "/updateUser" });
+
+      this.$router.push({
+        path: "/updateUser",
+        query: {
+          username: row.username,
+        },
+      });
     },
+    
     add() {
       this.$router.push({ path: "/addUser" });
     },
     getTableColumnList(list) {
       var obj = list[0];
       for (var v in obj) {
+        console.log(v);
+        if(v in showLable ){
+
+       
         this.tableColumnList.push({
           prop: v,
-          label: v,
+          label: this.showLable[v] || v,
         });
+         }
       }
       console.log(this.tableColumnList);
     },
     getList() {
       this.listLoading = true;
-
+      this.tableColumnList = [];
       getUsersList().then((response) => {
         console.log(response);
         this.listLoading = false;
-        this.list = response;
+        this.list = response.data;
         this.getTableColumnList(this.list);
+        this.getFilters(this.list);
         console.log(response);
       });
       // this.$axios.get("http://127.0.0.1:8000/up/users").then((response) => {

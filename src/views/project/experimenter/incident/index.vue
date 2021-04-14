@@ -7,27 +7,11 @@
             <svg-icon icon-class="peoples" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
-            <div class="card-panel-text">New Visits</div>
+            <div class="card-panel-text">处理中工单</div>
             <count-to
               :start-val="0"
-              :end-val="102400"
-              :duration="2600"
-              class="card-panel-num"
-            />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-message">
-            <svg-icon icon-class="message" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">Messages</div>
-            <count-to
-              :start-val="0"
-              :end-val="81212"
-              :duration="3000"
+              :end-val="overviewData.processIncident"
+              :duration="1"
               class="card-panel-num"
             />
           </div>
@@ -36,14 +20,30 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="money" class-name="card-panel-icon" />
+            <svg-icon icon-class="lock" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
-            <div class="card-panel-text">Purchases</div>
+            <div class="card-panel-text">待领取工单</div>
             <count-to
               :start-val="0"
-              :end-val="9280"
-              :duration="3200"
+              :end-val="overviewData.assginIncident"
+              :duration="1"
+              class="card-panel-num"
+            />
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-message">
+            <svg-icon icon-class="skill" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">已完成工单</div>
+            <count-to
+              :start-val="0"
+              :end-val="overviewData.finishIncident"
+              :duration="1"
               class="card-panel-num"
             />
           </div>
@@ -55,18 +55,18 @@
             <svg-icon icon-class="shopping" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
-            <div class="card-panel-text">Shoppings</div>
+            <div class="card-panel-text">派给我的工单</div>
             <count-to
               :start-val="0"
-              :end-val="13600"
-              :duration="3600"
+              :end-val="overviewData.allIncident"
+              :duration="1"
               class="card-panel-num"
             />
           </div>
         </div>
       </el-col>
     </el-row>
-    <div class="filter-container">
+    <!-- <div class="filter-container">
       <el-input
         v-model="listQuery.title"
         placeholder="Title"
@@ -135,17 +135,20 @@
       >
         Export
       </el-button>
-    </div>
+    </div> -->
     <el-table
-      :key="tableKey"
-      v-loading="listLoading"
+      stripe
       :data="list"
       border
       fit
       highlight-current-row
       style="width: 100%"
-      @sort-change="sortChange"
     >
+      <el-table-column key="ID" label="编号" prop="IDs">
+        <template slot-scope="scope">
+          {{ getId(scope.$index) }}
+        </template>
+      </el-table-column>
       <el-table-column
         :key="col.prop"
         :label="col.label"
@@ -153,16 +156,66 @@
         v-for="col in tableColumnList"
       >
       </el-table-column>
+      <el-table-column fixed="right" label="操作" width="150">
+        <template slot-scope="scope">
+          <el-button type="text" size="small" @click="showDetail(scope.row)">
+            查看
+          </el-button>
+
+          <el-button
+            type="text"
+            size="small"
+            v-if="scope.row.process_status == '待领取'"
+            @click="pickProcess(scope.row)"
+          >
+            领取
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
 
 <script>
+import { processOverview } from "@/api/process";
+import CountTo from "vue-count-to";
+import {
+  getProcess,
+  putProcessStatus,
+  getAssignProcess,
+  putAssignProcess,
+} from "@/api/process";
+
+const lables = {
+  incident_id: "工单编号",
+  create_name: "工单发起人",
+  finish_time: "预计完成世纪",
+  process_name: "当前环节",
+  experimenter: "试验员",
+  start_time_d: "开始时间",
+  end_time_d: "结束时间",
+  process_status: "状态",
+  pro_name: "项目名称",
+  process_id: "工序编号",
+};
+const status = {
+  0: "已创建",
+  1: "待分配",
+  2: "待领取",
+  3: "实验中",
+  4: "已完成",
+};
 export default {
+  components: {
+    CountTo,
+  },
   data() {
     return {
+      lables,
+      status,
       tableColumnList: [],
       list: null,
+      overviewData: {},
       listQuery: {
         page: 1,
         limit: 20,
@@ -172,6 +225,115 @@ export default {
         sort: "+id",
       },
     };
+  },
+  mounted() {
+    this.getOverview();
+  },
+  created() {
+    this.getOverview();
+    this.getProcess();
+  },
+  methods: {
+     getId(index) {
+      return index+1;
+    },
+    putComponentStatus(process_id) {
+      getAssignProcess(process_id).then((response) => {
+        var components = response.data.componentlist;
+        components = components.filter(function (ele) {
+          ele["component_status"] = 2; //状态变为出库
+          ele["component_status1"] = 2; //状态变为实验中
+          return ele;
+        });
+        putAssignProcess({
+          data: components,
+        }).then((respones) => {
+          console.log(respones);
+        });
+      });
+    },
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex === 1) {
+        return "warning-row";
+      } else if (rowIndex === 3) {
+        return "success-row";
+      }
+      return "";
+    },
+    pickProcess(row) {
+      this.$confirm("此操作将领取此工单?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          console.log("sure");
+          var processStatus = {
+            process_id: row.process_id,
+            process_status: 3, //工序状态变为实验中
+          };
+          this.putComponentStatus(row.process_id);
+
+          putProcessStatus(processStatus).then((response) => {
+            console.log(response);
+            this.$notify({
+              title: "Success",
+              message: "领取成功",
+              type: "success",
+            });
+            this.getProcess();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    showDetail(row) {
+      this.$router.push({
+        path: "/incidentprocess",
+        query: {
+          process_id: row.process_id,
+        },
+      });
+    },
+    getStatus() {
+      this.list.forEach((element) => {
+        for (var k in element) {
+          if (k == "process_status") {
+            element[k] = this.status[element[k]];
+          }
+        }
+      });
+    },
+    getColumns(list) {
+      this.tableColumnList = [];
+      var obj = list[0];
+      for (var v in obj) {
+        if (this.lables[v]) {
+          this.tableColumnList.push({
+            prop: v,
+            label: this.lables[v],
+          });
+        }
+      }
+    },
+    getProcess() {
+      getProcess("experimenter").then((response) => {
+        console.log(response);
+        this.list = response.data;
+        this.getStatus();
+        this.getColumns(this.list);
+      });
+    },
+    getOverview() {
+      processOverview("experimenter").then((response) => {
+        console.log(response);
+        this.overviewData = response;
+      });
+    },
   },
 };
 </script>

@@ -1,12 +1,15 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter,scynRoutes } from '@/router'
+import { getToken, setToken, removeToken,getUser,setUser,removeUser } from '@/utils/auth'
+import { resetRouter, scynRoutes } from '@/router'
+import Router from '@/router'
+
 
 const getDefaultState = () => {
     return {
         token: getToken(),
-        roles:"",
+        roles: "",
         name: '',
+        username: getUser(),
         avatar: '',
         menus: '', // 新增
     }
@@ -32,6 +35,10 @@ const mutations = {
     },
     SET_MENUS: (state, menus) => {
         state.menus = menus
+    },
+    SET_USERNAME: (state, username) => {
+        state.username = username
+
     }
 }
 
@@ -42,22 +49,26 @@ const actions = { // user login
         const { username, password } = userInfo
         return new Promise((resolve, reject) => {
             login({ username: username.trim(), password: password }).then(response => {
-                const { data } = response
-                commit('SET_TOKEN', data.token)
-                setToken(data.token)
+                const { access_token } = response
+                commit('SET_TOKEN', access_token)
+                commit('SET_USERNAME', username)
+                setToken(access_token)
+                setUser(username)
+                console.log('get token')
                 resolve()
             }).catch(error => {
                 reject(error)
             })
         })
     },
-    getDyRouters(roles){
+    getDyRouters(roles) {
         var menus = []
+        var obj = JSON.parse(JSON.stringify(scynRoutes))
         roles.forEach(element => {
-         menus.push(scynRoutes[element])
+            menus.push(obj[element])
         });
-         //menus.push(scynRoutes['warehouse'])
-          return menus;
+        //menus.push(scynRoutes['warehouse'])
+        return menus;
     },
 
     // get user info
@@ -65,52 +76,27 @@ const actions = { // user login
         { commit, state }
     ) {
         return new Promise((resolve, reject) => {
-            getInfo(state.token).then(response => {
-                const { data } = response
+            getInfo(state.username).then(response => {
+                const data = response
                 if (!data) {
                     return reject('Verification failed, please Login again.')
                 }
-                const { name, avatar,roles } = data
-                console.log(name,avatar,roles)
+                const { username, avatar, u_authority,u_status } = data
+                // if(u_status == 0){
+                
+                //     Router.push({name: 'changepw'});
+                //     // Router.push({
+                //     //     name: 'changepw'
+                //     // })
+                   
+                // }
+
+               
+
+                var roles = u_authority.split(",");
                 // 模拟请求数据
                 const menus = actions.getDyRouters(roles);
-                //const menus = [];
-                // const menus = [{
-                //     'path': '/system',
-                //     'redirect': '/menu',
-                //     'component': 'Layout',
-                //     'meta': {
-                //         'title': '系统管理',
-                //         'icon': 'form'
-                //     },
-                //     'children': [
-                //         {
-                //             'path': '/menu',
-                //             'name': 'menu',
-                //             'component': 'menu/index',
-                //             'meta': {
-                //                 'title': '菜单管理',
-                //                 'icon': 'table'
-                //             }
-                //         }, {
-                //             'path': '/roles',
-                //             'name': 'roles',
-                //             'component': 'roles/index',
-                //             'meta': {
-                //                 'title': '角色管理',
-                //                 'icon': 'table'
-                //             }
-                //         }, {
-                //             'path': '/administrator',
-                //             'name': 'administrator',
-                //             'component': 'dashboard/index',
-                //             'meta': {
-                //                 'title': '用户管理',
-                //                 'icon': 'table'
-                //             }
-                //         }
-                //     ]
-                // }]
+
                 // 如果需要404 页面，请在此处添加
                 menus.push({
                     path: '/404',
@@ -121,10 +107,11 @@ const actions = { // user login
                     redirect: '/404',
                     hidden: true
                 })
-                commit('SET_NAME', name)
+                commit('SET_NAME', username)
                 commit('SET_AVATAR', avatar)
                 commit('SET_ROLES', roles)
                 commit('SET_MENUS', menus) // 触发vuex SET_MENUS 保存路由表到vuex
+                
                 resolve(data)
             }).catch(error => {
                 reject(error)
@@ -136,14 +123,14 @@ const actions = { // user login
         { commit, state }
     ) {
         return new Promise((resolve, reject) => {
-            logout(state.token).then(() => {
+           // logout(state.token).then(() => {
                 removeToken() // must remove  token  first
                 resetRouter()
                 commit('RESET_STATE')
                 resolve()
-            }).catch(error => {
-                reject(error)
-            })
+           // }).catch(error => {
+               // reject(error)
+            //})
         })
     },
 
@@ -151,6 +138,7 @@ const actions = { // user login
     resetToken({ commit }) {
         return new Promise(resolve => {
             removeToken() // must remove  token  first
+            removeUser()
             commit('RESET_STATE')
             resolve()
         })

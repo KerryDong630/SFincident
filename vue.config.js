@@ -1,5 +1,6 @@
 'use strict'
 const path = require('path')
+const webpack = require('webpack')
 const defaultSettings = require('./src/settings.js')
 
 function resolve(dir) {
@@ -33,17 +34,19 @@ module.exports = {
   devServer: {
     port: port,
     open: true,
+    disableHostCheck: true,
+
     overlay: {
       warnings: false,
       errors: true
     },
+
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
-        ws: true,
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '/'
+          '^/api': ''
         }
       }
     },
@@ -57,7 +60,16 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
-    }
+    },
+    plugins: [
+      new webpack.ProvidePlugin({
+        $: "jquery",
+        jQuery: "jquery",
+        "windows.jQuery": "jquery"
+
+      })
+
+    ]
   },
   chainWebpack(config) {
     // it can improve the speed of the first screen, it is recommended to turn on preload
