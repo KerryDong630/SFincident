@@ -182,7 +182,7 @@ export default {
         lable: "客户信息",
         data: [
           {
-            name: "委托公司名称",
+            name: "委托方名称",
             force: true,
             value: "",
             key: "company",

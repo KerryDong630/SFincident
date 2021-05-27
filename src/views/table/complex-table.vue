@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
+    <!-- <div class="filter-container">
       <el-input
         v-model="listQuery.title"
         placeholder="Title"
@@ -69,7 +69,7 @@
       >
         Export
       </el-button>
-    </div>
+    </div> -->
 
     <el-table
       :key="tableKey"
@@ -88,74 +88,16 @@
         v-for="col in tableColumnList"
       >
       </el-table-column>
-      <!-- <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Title" min-width="150px">
-        <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-          <el-tag>{{ row.type | typeFilter }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="Author" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span style="color:red;">{{ row.reviewer }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Imp" width="80px">
-        <template slot-scope="{row}">
-          <svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />
-        </template>
-      </el-table-column>
-      <el-table-column label="Readings" align="center" width="95">
-        <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Status" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
-          </el-tag>
-        </template>
-      </el-table-column> -->
+    
       <el-table-column
-        label="Actions"
+        label="操作"
         align="center"
         width="230"
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{ row, $index }">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            Edit
-          </el-button>
-          <el-button
-            v-if="row.status != 'published'"
-            size="mini"
-            type="success"
-            @click="handleModifyStatus(row, 'published')"
-          >
-            Publish
-          </el-button>
-          <el-button
-            v-if="row.status != 'draft'"
-            size="mini"
-            @click="handleModifyStatus(row, 'draft')"
-          >
-            Draft
+            修改
           </el-button>
           <el-button
             v-if="row.status != 'deleted'"
@@ -163,7 +105,7 @@
             type="danger"
             @click="handleDelete(row, $index)"
           >
-            Delete
+            删除
           </el-button>
         </template>
       </el-table-column>
@@ -297,9 +239,12 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 }, {});
 
 export default {
+
   name: "ComplexTable",
   components: { Pagination },
   directives: { waves },
+  props: ['list','tableColumnList'],
+
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -316,10 +261,10 @@ export default {
   data() {
     return {
       tableKey: 0,
-      list: null,
-      tableColumnList:[],
+      //list: null,
+      //tableColumnList:[],
       total: 0,
-      listLoading: true,
+      listLoading: false,
       listQuery: {
         page: 1,
         limit: 20,
@@ -373,7 +318,7 @@ export default {
     };
   },
   created() {
-    this.getList();
+    //this.getList();
   },
   methods: {
     gettableColumnList(list){
@@ -388,17 +333,10 @@ export default {
       console.log(this.tableColumnList)
     },
     getList() {
-      this.listLoading = true;
-      fetchList(this.listQuery).then((response) => {
-        this.list = response.data.items;
-        this.gettableColumnList(this.list);
+        console.log(this.listTable)
+        this.gettableColumnList(this.listTable);
         this.total = response.data.total;
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false;
-        }, 1.5 * 1000);
-      });
     },
     handleFilter() {
       this.listQuery.page = 1;

@@ -138,6 +138,7 @@ const componentStatus = {
   2: "实验中",
   3: "实验结束",
   4: "待审核",
+  5:"报废"
 };
 export default {
   data() {
@@ -288,7 +289,7 @@ export default {
       var flag = true;
       try {
         this.form.componentlist.forEach((element) => {
-          if (element["component_status1"] !== 3) {
+          if ( (element["component_status1"] !== 3) || (element["component_status1"] !== 5)) {
             flag = false;
             throw new Error("End Loop");
           }
@@ -308,10 +309,12 @@ export default {
           message: "提交成功",
           type: "success",
         });
+        this.$router.push({path:"/incidentOverview"})
       });
     },
     onSubmit() {
-      var flag = this.checkStatus();
+      //var flag = this.checkStatus();
+      var flag = true;
       if (flag) {
         this.open(this.submitProcess);
       } else {

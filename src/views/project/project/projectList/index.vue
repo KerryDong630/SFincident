@@ -2,46 +2,8 @@
   <div class="app-container">
     <el-header class="app-header"> 项目管理 </el-header>
     <el-main>
-      <!-- <div class="filter-container">
-        <el-input
-          v-model="listQuery.projectId"
-          placeholder="项目编号号："
-          style="width: 200px"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-        <el-input
-          v-model="listQuery.orderNumber"
-          placeholder="委托单编号:"
-          style="width: 200px"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-        <el-select
-          v-model="listQuery.projectStatus"
-          placeholder="当前状态："
-          clearable
-          class="filter-item"
-          style="width: 130px"
-        >
-          <el-option
-            v-for="item in statusTypeOptions"
-            :key="item.key"
-            :label="item.display_name"
-            :value="item.key"
-          />
-        </el-select>
-        <el-button
-          v-waves
-          class="filter-item"
-          type="primary"
-          icon="el-icon-search"
-          @click="handleFilter"
-        >
-          搜索
-        </el-button>
-      </div> -->
       <div class="tool-button">
+       
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
           type="primary"
@@ -57,13 +19,55 @@
         highlight-current-row
         style="width: 100%"
       >
-        <el-table-column key="id" label="编号" prop="id">
+        <!-- <el-table-column key="id" label="编号" prop="id">
           <template slot-scope="scope">
             {{ getId(scope.$index) }}
           </template>
-        </el-table-column>
-
+        </el-table-column> -->
         <el-table-column
+          key="id"
+          label="项目ID"
+          prop="id"
+          sortable
+        >
+        </el-table-column>
+        <el-table-column
+          key="create_name"
+          label="项目负责人"
+          prop="create_name"
+        >
+        </el-table-column>
+           <el-table-column
+          key="finish_time"
+          label="项目预计结束时间"
+          prop="finish_time"
+          sortable
+        >
+        </el-table-column>
+           <el-table-column
+          key="create_time"
+          label="项目创建时间"
+          prop="create_time"
+          sortable
+        >
+        </el-table-column>
+          <el-table-column
+          key="res_name"
+          label="试验主管"
+          prop="res_name"
+          :filters="resFilters"
+          :filter-method="filterHandler"
+        >
+        </el-table-column>
+         <el-table-column
+          key="pro_name"
+          label="项目名称"
+          prop="pro_name"
+          :filters="proNameFilters"
+          :filter-method="filterHandler"
+        >
+        </el-table-column>
+        <!-- <el-table-column
           :key="col.prop"
           :label="col.label"
           :prop="col.prop"
@@ -72,7 +76,7 @@
           :filter-method="filterHandler"
           v-for="col in tableColumnList"
         >
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
             <el-button

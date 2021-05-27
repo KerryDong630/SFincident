@@ -13,7 +13,7 @@ export function addComponents(data) {
 
 export function addExComponent(id) {
   return requestdev({
-    url: 'addExComponent/'+id,
+    url: 'addExComponent/' + id,
     method: 'get',
 
   })
@@ -24,8 +24,24 @@ export function addExComponent(id) {
 
 export function loadCodeComponent(id) {
   return requestdev({
-    url: 'loadCodeComponent/'+id,
-    method: 'get',
+    url: 'loadCodeComponent/' + id,
+    method: 'put',
 
+  })
+}
+
+export function scanCode(data) {
+  return requestdev({
+    url: '/scanCode',
+    method: 'post',
+    data
+  })
+}
+
+
+export function reportFailure(id) {
+  return requestdev({
+    url: 'reportFailure/' + id,
+    method: 'post',
   })
 }

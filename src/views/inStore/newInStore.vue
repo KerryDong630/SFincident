@@ -339,10 +339,10 @@ export default {
       });
     },
     onSubmit() {
-      if (this.form.check_form_id == "") {
-        this.$message.error("请上传检查单");
-        return;
-      }
+      // if (this.form.check_form_id == "") {
+      //   this.$message.error("请上传检查单");
+      //   return;
+      // }
       //this.form.create_name = store.getters.name;
       //this.form.store_name = "" ? store.getters.name : this.form.store_name;
       this.is_num = parseInt(this.is_num);

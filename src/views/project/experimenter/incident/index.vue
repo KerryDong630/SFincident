@@ -66,76 +66,7 @@
         </div>
       </el-col>
     </el-row>
-    <!-- <div class="filter-container">
-      <el-input
-        v-model="listQuery.title"
-        placeholder="Title"
-        style="width: 200px"
-        class="filter-item"
-        @keyup.enter.native="handleFilter"
-      />
-      <el-select
-        v-model="listQuery.importance"
-        placeholder="Imp"
-        clearable
-        style="width: 90px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in importanceOptions"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
-      <el-select
-        v-model="listQuery.type"
-        placeholder="Type"
-        clearable
-        class="filter-item"
-        style="width: 130px"
-      >
-        <el-option
-          v-for="item in calendarTypeOptions"
-          :key="item.key"
-          :label="item.display_name + '(' + item.key + ')'"
-          :value="item.key"
-        />
-      </el-select>
-      <el-select
-        v-model="listQuery.sort"
-        style="width: 140px"
-        class="filter-item"
-        @change="handleFilter"
-      >
-        <el-option
-          v-for="item in sortOptions"
-          :key="item.key"
-          :label="item.label"
-          :value="item.key"
-        />
-      </el-select>
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >
-        Search
-      </el-button>
 
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        Export
-      </el-button>
-    </div> -->
     <el-table
       stripe
       :data="list"
@@ -144,18 +75,86 @@
       highlight-current-row
       style="width: 100%"
     >
-      <el-table-column key="ID" label="编号" prop="IDs">
-        <template slot-scope="scope">
-          {{ getId(scope.$index) }}
-        </template>
+      <el-table-column
+        key="process_id"
+        label="工序编号"
+        prop="process_id"
+        sortable
+      >
+      </el-table-column>
+
+      <el-table-column
+        key="process_name"
+        label="当前环节"
+        prop="process_name"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column key="pro_name" label="项目名称" prop="pro_name" sortable>
       </el-table-column>
       <el-table-column
+        key="experimenter"
+        label="试验员"
+        prop="experimenter"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="incident_id"
+        label="工单编号"
+        prop="incident_id"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="create_name"
+        label="工单发起人"
+        prop="create_name"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="start_time_d"
+        label="开始时间"
+        prop="start_time_d"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="end_time_d"
+        label="结束时间"
+        prop="end_time_d"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="finish_time"
+        label="预计完成时间"
+        prop="finish_time"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="process_status"
+        label="状态"
+        prop="process_status"
+        :filters="statusFilters"
+        :filter-method="filterHandler"
+        sortable
+      >
+        <template slot-scope="scope">
+          <label :style="{ color: getColor(scope.row.process_status) }">{{
+            getStatus(scope.row.process_status)
+          }}</label>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column
         :key="col.prop"
         :label="col.label"
         :prop="col.prop"
         v-for="col in tableColumnList"
       >
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="showDetail(scope.row)">
@@ -165,7 +164,7 @@
           <el-button
             type="text"
             size="small"
-            v-if="scope.row.process_status == '待领取'"
+            v-if="scope.row.process_status == 2"
             @click="pickProcess(scope.row)"
           >
             领取
@@ -185,7 +184,28 @@ import {
   getAssignProcess,
   putAssignProcess,
 } from "@/api/process";
-
+const statusFilters = [
+  {
+    text: "已创建",
+    value: 0,
+  },
+  {
+    text: "待分配",
+    value: 1,
+  },
+  {
+    text: "已分配",
+    value: 2,
+  },
+  {
+    text: "实验中",
+    value: 3,
+  },
+  {
+    text: "已完成",
+    value: 4,
+  },
+];
 const lables = {
   incident_id: "工单编号",
   create_name: "工单发起人",
@@ -213,6 +233,8 @@ export default {
     return {
       lables,
       status,
+      statusFilters,
+      proNameFilters: [],
       tableColumnList: [],
       list: null,
       overviewData: {},
@@ -234,16 +256,38 @@ export default {
     this.getProcess();
   },
   methods: {
-     getId(index) {
-      return index+1;
+    getColor(status) {
+      if (status == 2) {
+        return "#409EFF";
+      } else if (status == 1) {
+        return "#F56C6C";
+      } else if (status == 0) {
+        return "#909399";
+      } else if (status == 3) {
+        return "#E6A23C";
+      } else if (status == 4) {
+        return "#67C23A";
+      }
+    },
+    getId(index) {
+      return index + 1;
+    },
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      console.log(row[property]);
+      console.log(value);
+      return row[property] === value;
     },
     putComponentStatus(process_id) {
       getAssignProcess(process_id).then((response) => {
         var components = response.data.componentlist;
         components = components.filter(function (ele) {
-          ele["component_status"] = 2; //状态变为出库
-          ele["component_status1"] = 2; //状态变为实验中
-          return ele;
+          if (ele["component_status1"] !== 5) {
+            //返回不报损的试验件
+            ele["component_status"] = 2; //状态变为出库
+            ele["component_status1"] = 2; //状态变为实验中
+            return ele;
+          }
         });
         putAssignProcess({
           data: components,
@@ -299,14 +343,15 @@ export default {
         },
       });
     },
-    getStatus() {
-      this.list.forEach((element) => {
-        for (var k in element) {
-          if (k == "process_status") {
-            element[k] = this.status[element[k]];
-          }
-        }
-      });
+    getStatus(status) {
+      return this.status[status];
+      // this.list.forEach((element) => {
+      //   for (var k in element) {
+      //     if (k == "process_status") {
+      //       element[k] = this.status[element[k]];
+      //     }
+      //   }
+      // });
     },
     getColumns(list) {
       this.tableColumnList = [];
@@ -324,7 +369,7 @@ export default {
       getProcess("experimenter").then((response) => {
         console.log(response);
         this.list = response.data;
-        this.getStatus();
+        //this.getStatus();
         this.getColumns(this.list);
       });
     },

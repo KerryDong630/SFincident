@@ -65,7 +65,7 @@
         </el-table-column>
         <el-table-column key="testType" prop="testType" label="测试项目类型">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.ty" placeholder="请选择">
+            <el-select v-model="scope.row.testType" placeholder="请选择">
               <el-option
                 v-for="item in tyarr"
                 :key="item.value"
@@ -82,7 +82,7 @@
           label="材料代码"
         >
           <template slot-scope="scope">
-            <el-select v-model="scope.row.mc" placeholder="请选择">
+            <el-select v-model="scope.row.materialCode" placeholder="请选择">
               <el-option
                 v-for="item in mcarr"
                 :key="item.value"
@@ -93,13 +93,9 @@
             </el-select>
           </template>
         </el-table-column>
-        <el-table-column
-          key="materialCode"
-          prop="materialCode"
-          label="工艺代码"
-        >
+        <el-table-column key="craftCode" prop="craftCode" label="工艺代码">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.pc" placeholder="请选择">
+            <el-select v-model="scope.row.craftCode" placeholder="请选择">
               <el-option
                 v-for="item in pcarr"
                 :key="item.value"
@@ -165,6 +161,7 @@ const newObj = {
   orderNum: "",
   testType: "",
   materialCode: "",
+  craftCode: "",
   inTime: parseTime(new Date(), "{y}{m}{d}"),
   component_unique_id: "",
 };
@@ -206,8 +203,12 @@ export default {
           key: "testType",
         },
         {
-          label: "材料与工艺代码",
+          label: "材料代码",
           key: "materialCode",
+        },
+        {
+          label: "工艺代码",
+          key: "craftCode",
         },
         {
           label: "试验件入库时间",
@@ -261,7 +262,7 @@ export default {
             });
           }
         });
-        console.log(this.mcarr);
+        console.log(this.tyarr);
       });
     },
     getUrl() {
@@ -323,16 +324,35 @@ export default {
       }
     },
     submit() {
-      var data = deepCopy(this.tableData);
-      data.forEach((e) => {
-        e["original_id"] = e[this.tableHeader[1]];
-        e["component_unique_id"] = e[this.tableHeader[2]];
-        e["order_number"] = this.order_number;
-        e['instore_id'] = this.instore_id;
-        delete e[this.tableHeader[1]];
-        delete e[this.tableHeader[2]];
-        delete e[this.tableHeader[0]];
-      });
+      if (this.ifOrigCode) {
+        var data = deepCopy(this.tableData);
+        data.forEach((e) => {
+          e["original_id"] = e[this.tableHeader[1]];
+          e["component_unique_id"] = e[this.tableHeader[2]];
+          e["order_number"] = this.order_number;
+          e["instore_id"] = this.instore_id;
+          delete e[this.tableHeader[1]];
+          delete e[this.tableHeader[2]];
+          delete e[this.tableHeader[0]];
+        });
+      } else {
+        var data = [];
+        this.tableDataNoOrig.forEach((e, i) => {
+          data.push({
+            original_id: "",
+            component_unique_id: e["component_unique_id"],
+            order_number: this.order_number,
+            instore_id: this.instore_id,
+          });
+          this.tableData.push({
+            编号: i + 1,
+            试验件原始编号: "",
+            试验件编号: e["component_unique_id"],
+          });
+        });
+
+        this.tableHeader = ["编号", "试验件原始编号", "试验件编号"];
+      }
       console.log(data);
       var result = {
         data: data,
@@ -366,14 +386,49 @@ export default {
 
       return uuid;
     },
+    notempty(data) {
+      var arr = [];
+      data.map(function (val, index) {
+        //过滤规则为，不为空串、不为null、不为undefined，也可自行修改
+        if (val !== "" && val != undefined) {
+          arr.push(val);
+        }
+      });
+      return arr;
+    },
+    generateRuleId(table) {
+      var uuid = "";
+      var arr = [];
+      console.log(table);
+      for (var key in table) {
+        if (key !== "component_unique_id") {
+          if (key == "orderNum") {
+            if (table[key] == "") {
+              table[key] = "0000000";
+            }
+          }
+          arr.push(table[key]);
+        }
+      }
+      arr = this.notempty(arr)
+      uuid = arr.join("-");
+      return uuid;
+    },
     generateCode() {
       console.log(this.tableHeader);
-      this.tableHeader.push("试验件编号");
+      if (this.ifOrigCode) {
+        this.tableHeader.push("试验件编号");
 
-      this.tableData.forEach((e) => {
-        e["试验件编号"] = this.generateID(e.试验件原始编号);
-      });
-      console.log(this.tableData);
+        this.tableData.forEach((e) => {
+          e["试验件编号"] = this.generateID(e.试验件原始编号);
+        });
+      } else {
+        this.tableDataNoOrig.forEach((e) => {
+          e["component_unique_id"] = this.generateRuleId(e);
+        });
+      }
+
+      console.log(this.tableDataNoOrig);
     },
     exportExcel() {
       this.downloadLoading = true;

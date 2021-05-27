@@ -65,6 +65,17 @@ export const constantRoutes = [
       meta: { title: '消息', icon: 'dashboard' }
     }]
   },
+  {
+    path: '/newDashboard',
+    component: Layout,
+    redirect: '/newDashboard',
+    children: [{
+      path: '/newDashboard',
+      name: 'newDashboard',
+      component: () => import('@/views/newDashboard/index'),
+      meta: { title: '大屏', icon: 'dashboard' }
+    }]
+  },
   // {
   //   path: '/scanCode',
   //   component: Layout,
@@ -386,10 +397,23 @@ export const scynRoutes = {
         meta: { title: '创建工单' }
       },
       {
+        path: '/newmanageOut',
+        component: 'project/program/outStore/newOutStore',
+        name: 'newmanageOut',
+        'hidden':true,
+        meta: { title: '创建出库' }
+      },
+      {
         path: '/incident',
         component: 'project/program/incident/index',
         name: 'incident',
         meta: { title: '工单' }
+      },
+      {
+        path: '/manageOutStore',
+        component: 'project/program/outStore/index',
+        name: 'manageOutStore',
+        meta: { title: '出库管理' }
       }
       // {
 

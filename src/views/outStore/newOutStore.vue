@@ -47,12 +47,12 @@
       <el-form class="demo-form-inline" style="margin-top: 20px">
         <el-row :gutter="40">
           <el-col :xs="12" :sm="12" :lg="8">
-            <el-form-item label="入库类型">
+            <el-form-item label="出库类型">
               <el-input v-model="form.name"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
-            <el-form-item label="入库时间">
+            <el-form-item label="出库时间">
               <el-date-picker
                 type="date"
                 placeholder="选择日期"
@@ -68,7 +68,7 @@
           </el-col>
 
           <el-col :xs="12" :sm="12" :lg="8">
-            <el-form-item label="入库接收人">
+            <el-form-item label="出库接收人">
               <el-input v-model="form.name"></el-input>
             </el-form-item>
           </el-col>

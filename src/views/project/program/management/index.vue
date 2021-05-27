@@ -2,45 +2,6 @@
   <div class="app-container">
     <el-header class="app-header"> 试验任务管理 </el-header>
     <el-main>
-      <!-- <div class="filter-container">
-        <el-input
-          v-model="listQuery.projectId"
-          placeholder="项目编号号："
-          style="width: 200px"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-        <el-input
-          v-model="listQuery.orderNumber"
-          placeholder="委托单编号:"
-          style="width: 200px"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        /> -->
-      <!-- <el-select
-          v-model="listQuery.projectStatus"
-          placeholder="当前状态："
-          clearable
-          class="filter-item"
-          style="width: 130px"
-        >
-          <el-option
-            v-for="item in statusTypeOptions"
-            :key="item.key"
-            :label="item.display_name"
-            :value="item.key"
-          />
-        </el-select> -->
-      <!-- <el-button
-          v-waves
-          class="filter-item"
-          type="primary"
-          icon="el-icon-search"
-          @click="handleFilter"
-        >
-          搜索
-        </el-button>
-      </div> -->
       <div class="tool-button">
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
@@ -62,11 +23,7 @@
         highlight-current-row
         style="width: 100%"
       >
-        <el-table-column key="id" label="编号" prop="id">
-          <template slot-scope="scope">
-            {{ getId(scope.$index) }}
-          </template>
-        </el-table-column>
+
         <el-table-column
           key="project_name"
           label="项目名称"
@@ -134,6 +91,15 @@
           <template slot-scope="{ row }">
             <el-button
               style="margin-left: 0px"
+              v-if="row.order_number == null "
+              type="text"
+              size="small"
+              @click="createProgram(row)"
+            >
+              新建试验任务
+            </el-button>
+            <el-button
+              style="margin-left: 0px"
               v-if="row.in_store_num > 0"
               type="text"
               size="small"
@@ -172,7 +138,7 @@
               :sm="12"
               :lg="8"
             >
-              <el-form-item :label="key">
+              <el-form-item :label="lables[key]">
                 <el-input :value="value" :disabled="true"></el-input>
               </el-form-item>
             </el-col>
@@ -200,9 +166,14 @@ const statusTypeOptions = [
   { display_name: "完成", key: "3" },
 ];
 const lables = {
+  project_id:"项目ID",
+  program_id:"试验大纲id",
   project_name: "项目名称",
+  pro_name:"项目名称",
   company: "委托公司名称",
   task_id: "任务书编码",
+  order_id:"委托书id",
+  pro_id:"项目id",
   program_code: "试验大纲编码",
   task_name_book: "试验任务书名称",
   order_time: "委托单时间",
@@ -219,10 +190,18 @@ const lables = {
   sample_num: "样品数量",
   in_store_num: "已入库",
   in_experiment: "实验中",
-
   w_sum: "等待入库",
   is_finish: "成品",
-  id: "任务编号",
+  res_name: "试验主管",
+  create_name: "项目负责人",
+  category: "行业类型",
+  tele_phone: "联系方式",
+  postcode: "邮编",
+  u_email: "邮箱",
+  address: "详细地址",
+  contact: "联系人",
+  task_form_id:"任务书id",
+
 };
 const showColumns = [
   "id",
@@ -283,6 +262,12 @@ export default {
       this.$router.push({
         path: "/comfirmStore",
         query: { order_number: order_number },
+      });
+    },
+    createProgram(row){
+      this.$router.push({
+        path: "/newpro",
+        query: { pro_name: row.project_name },
       });
     },
     createIncident(row) {

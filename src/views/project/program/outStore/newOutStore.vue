@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-header style="line-height: 60px">新建工单 </el-header>
+    <el-header style="line-height: 60px">新建出库 </el-header>
     <el-main>
       <el-form class="demo-form-inline" style="margin-top: 20px; width: 80%">
         <el-row :gutter="40">

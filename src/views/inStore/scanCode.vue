@@ -7,12 +7,22 @@
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
       />
+      <div class="tool-button">
+        <el-button
+          type="primary"
+          @click="onDelete"
+          icon="el-icon-delete"
+        ></el-button>
+      </div>
       <el-table
         :data="tableData"
         border
+        ref="multipleTable"
+        @selection-change="handleSelectionChange"
         highlight-current-row
         style="width: 100%; margin-top: 20px"
       >
+        <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column prop="编号" label="编号" />
         <el-table-column prop="试验件原始编号" label="试验件原始编号" />
         <el-table-column prop="试验件编号" label="试验件编号">
@@ -41,32 +51,64 @@ import {
   putAssignProcess,
   putProcessStatus,
 } from "@/api/process";
-import {putInstore} from "@/api/inStore"
+import { putInstore } from "@/api/inStore";
+import { scanCode } from "@/api/component";
 export default {
   components: { UploadExcelComponent },
 
   data() {
     return {
-      id:"",
+      id: "",
       filename: "自动生成扭转码",
       autoWidth: true,
       bookType: "xlsx",
       tableData: [],
       tableHeader: [],
       list: null,
+      multipleSelection: [],
     };
   },
-  mounted: function (){
-  //this.order_number = this.$route.query.order_number;
+  mounted: function () {
+    //this.order_number = this.$route.query.order_number;
 
-    this.id = this.$route.query.id
+    this.id = this.$route.query.id;
   },
   methods: {
-    changeInstore(num){
-      console.log(this.id)
-          putInstore(this.id,{"instore":num}).then(resoponse=>{
-            console.log(resoponse)
-          })
+    onDelete() {
+      this.$confirm("此操作将删除这些数据, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.tableData.forEach((element, index) => {
+            this.multipleSelection.forEach((e) => {
+              if (element.试验件编号 == e.试验件编号) {
+                delete this.tableData[index];
+              }
+            });
+          });
+          this.$message({
+            type: "success",
+            message: "删除成功!",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      console.log(this.multipleSelection);
+    },
+    changeInstore(num) {
+      console.log(this.id);
+      putInstore(this.id, { instore: num }).then((resoponse) => {
+        console.log(resoponse);
+      });
     },
     submit() {
       console.log(this.tableData);
@@ -79,7 +121,7 @@ export default {
         delete e[this.tableHeader[2]];
         delete e[this.tableHeader[0]];
         e["component_status"] = 1;
-        e["component_status1"] = 0;
+        //e["component_status1"] = 0;
       });
       console.log(data);
       this.$confirm("确定确认上述试验件入库?", "提示", {
@@ -88,16 +130,31 @@ export default {
         type: "warning",
       })
         .then(() => {
-          putAssignProcess({
+          scanCode({
             data: data,
+            id: this.id,
           }).then((respones) => {
             console.log(respones);
-            this.changeInstore(data.length)
-            this.$notify({
-              title: "Success",
-              message: "提交成功",
-              type: "success",
-            });
+            if (respones.message == "Success") {
+              putAssignProcess({
+                data: data,
+                id:this.id
+              }).then((respones) => {
+                console.log(respones);
+                this.changeInstore(data.length);
+                this.$notify({
+                  title: "Success",
+                  message: "提交成功",
+                  type: "success",
+                });
+              });
+              //可以扫码入库
+            } else {
+              //不符合入库规则
+              this.$message.error(
+                `有${respones.data.length}条数据不满足入库要求,请检查后再提交`
+              );
+            }
           });
         })
         .catch(() => {

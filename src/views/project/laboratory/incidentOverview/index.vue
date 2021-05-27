@@ -66,52 +66,7 @@
         </div>
       </el-col>
     </el-row>
-    <!-- <div class="filter-container">
-      <el-input
-        v-model="listQuery.title"
-        placeholder="工单编号"
-        style="width: 200px"
-        class="filter-item"
-        @keyup.enter.native="handleFilter"
-      />
-      <el-select
-        v-model="listQuery.importance"
-        placeholder="工单状态"
-        clearable
-        style="width: 90px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in importanceOptions"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
-      <el-date-picker v-model="value1" class="selection-date" type="date" placeholder="选择日期">
-      </el-date-picker>
 
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >
-        Search
-      </el-button>
-
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        Export
-      </el-button>
-    </div> -->
     <el-table
       :data="list"
       border
@@ -121,29 +76,95 @@
       style="width: 100%"
       @sort-change="sortChange"
     >
-      <el-table-column key="ID" label="编号" prop="IDs">
-        <template slot-scope="scope">
-          {{ getId(scope.$index) }}
-        </template>
+      <el-table-column
+        key="process_id"
+        label="工序编号"
+        prop="process_id"
+        sortable
+      >
+      </el-table-column>
+
+      <el-table-column
+        key="process_name"
+        label="当前环节"
+        prop="process_name"
+        sortable
+      >
       </el-table-column>
       <el-table-column
-        :key="col.prop"
-        :label="col.label"
-        :prop="col.prop"
+        key="pro_name"
+        :filters="proNameFilters"
+        :filter-method="filterHandler"
+        label="项目名称"
+        prop="pro_name"
         sortable
-        v-for="col in tableColumnList"
       >
+      </el-table-column>
+      <el-table-column
+        key="experimenter"
+        label="试验员"
+        prop="experimenter"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="incident_id"
+        label="工单编号"
+        prop="incident_id"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="create_name"
+        label="工单发起人"
+        prop="create_name"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="start_time_d"
+        label="开始时间"
+        prop="start_time_d"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="end_time_d"
+        label="结束时间"
+        prop="end_time_d"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="finish_time"
+        label="预计完成时间"
+        prop="finish_time"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        key="process_status"
+        label="状态"
+        :filters="statusFilters"
+        prop="process_status"
+        :filter-method="filterHandler"
+        sortable
+      >
+        <template slot-scope="scope">
+          <label :style="{ color: getColor(scope.row.process_status) }">{{
+            getStatus(scope.row.process_status)
+          }}</label>
+        </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="showDetail(scope.row)">
             查看
           </el-button>
-
           <el-button
             type="text"
             size="small"
-            v-if="scope.row.process_status == '待分配'"
+            v-if="scope.row.process_status == 1"
             @click="assginIncident(scope.row)"
           >
             分配
@@ -161,7 +182,7 @@ import { getProcess } from "@/api/process";
 const lables = {
   incident_id: "工单编号",
   create_name: "工单发起人",
-  finish_time: "预计完成世纪",
+  finish_time: "预计完成时间",
   process_name: "当前环节",
   experimenter: "试验员",
   start_time_d: "开始时间",
@@ -170,6 +191,28 @@ const lables = {
   pro_name: "项目名称",
   process_id: "工序编号",
 };
+const statusFilters = [
+  {
+    text: "已创建",
+    value: 0,
+  },
+  {
+    text: "待分配",
+    value: 1,
+  },
+  {
+    text: "已分配",
+    value: 2,
+  },
+  {
+    text: "实验中",
+    value: 3,
+  },
+  {
+    text: "已完成",
+    value: 4,
+  },
+];
 const status = {
   0: "已创建",
   1: "待分配",
@@ -188,6 +231,8 @@ export default {
   data() {
     return {
       lables,
+      proNameFilters: [],
+      statusFilters,
       status,
       overviewData: {},
       tableColumnList: [],
@@ -203,8 +248,30 @@ export default {
     };
   },
   methods: {
-     getId(index) {
-      return index+1;
+    getFilter(list) {
+      list.forEach((row) => {
+        var resultPro = this.proNameFilters.some((item) => {
+          if (item.text == row.pro_name) {
+            return true;
+          }
+        });
+
+        if (!resultPro) {
+          this.proNameFilters.push({
+            text: row.pro_name,
+            value: row.pro_name,
+          });
+        }
+      });
+    },
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      console.log(row[property])
+      console.log(value)
+      return row[property] === value;
+    },
+    getId(index) {
+      return index + 1;
     },
     showDetail(row) {
       this.$router.push({
@@ -222,21 +289,36 @@ export default {
         },
       });
     },
-    getStatus() {
-      this.list.forEach((element) => {
-        for (var k in element) {
-          if (k == "process_status") {
-            element[k] = this.status[element[k]];
-          }
-        }
-      });
+    getColor(status) {
+      if (status == 2) {
+        return "#409EFF";
+      } else if (status == 1) {
+        return "#F56C6C";
+      } else if (status == 0) {
+        return "#909399";
+      } else if (status == 3) {
+        return "#E6A23C";
+      } else if (status == 4) {
+        return "#67C23A";
+      }
+    },
+    getStatus(status) {
+      return this.status[status];
+      // this.list.forEach((element) => {
+      //   for (var k in element) {
+      //     if (k == "process_status") {
+      //       element[k] = this.status[element[k]];
+      //     }
+      //   }
+      // });
     },
     getProcess() {
       getProcess("process_owner").then((response) => {
         console.log(response);
         this.list = response.data;
-        this.getStatus();
+        //this.getStatus();
         this.getColumns(this.list);
+        this.getFilter(this.list);
       });
     },
     sortChange() {},
@@ -255,7 +337,8 @@ export default {
     getOverview() {
       processOverview("process_owner").then((response) => {
         console.log(response);
-        response.processIncident =response.processIncident+ response.assginIncident
+        response.processIncident =
+          response.processIncident + response.assginIncident;
         this.overviewData = response;
         //this.overviewData.processIncident += this.overviewData.assginIncident
       });

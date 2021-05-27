@@ -16,8 +16,8 @@
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
-            <el-form-item label="部门">
-              <el-select placeholder="请选择部门" v-model="form.u_department">
+            <el-form-item label="组别">
+              <el-select placeholder="请选择组别" v-model="form.u_department">
                 <el-option label="采购中心" value="de1"></el-option>
                 <el-option label="财务中心" value="de2"></el-option>
                 <el-option label="信息技术中心" value="de3"></el-option>
@@ -67,7 +67,7 @@ const rolesOption = [
   "任务",
   "项目",
   "试验员",
-  "实验室",
+  "工序负责人",
   "设备管理",
   "基础资料",
   "用户管理",
@@ -77,7 +77,7 @@ const roles = {
   任务: "program",
   项目: "project",
   试验员: "experimenter",
-  实验室: "laboratory",
+  工序负责人: "laboratory",
   设备管理: "equipment",
   基础资料: "information",
   用户管理: "admin",

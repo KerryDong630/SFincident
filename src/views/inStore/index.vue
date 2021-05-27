@@ -3,65 +3,6 @@
     <el-header style="line-height: 60px"> 入库管理 </el-header>
 
     <el-main>
-      <!-- <div class="filter-container">
-        <el-input
-          v-model="listQuery.title"
-          placeholder="Title"
-          style="width: 200px"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-        <el-select
-          v-model="listQuery.importance"
-          placeholder="Imp"
-          clearable
-          style="width: 90px"
-          class="filter-item"
-        >
-          <el-option
-            v-for="item in importanceOptions"
-            :key="item"
-            :label="item"
-            :value="item"
-          />
-        </el-select>
-        <el-select
-          v-model="listQuery.type"
-          placeholder="Type"
-          clearable
-          class="filter-item"
-          style="width: 130px"
-        >
-          <el-option
-            v-for="item in calendarTypeOptions"
-            :key="item.key"
-            :label="item.display_name + '(' + item.key + ')'"
-            :value="item.key"
-          />
-        </el-select>
-        <el-select
-          v-model="listQuery.sort"
-          style="width: 140px"
-          class="filter-item"
-          @change="handleFilter"
-        >
-          <el-option
-            v-for="item in sortOptions"
-            :key="item.key"
-            :label="item.label"
-            :value="item.key"
-          />
-        </el-select>
-        <el-button
-          v-waves
-          class="filter-item"
-          type="primary"
-          icon="el-icon-search"
-          @click="handleFilter"
-        >
-          Search
-        </el-button>
-      </div> -->
       <div class="tool-button">
         <el-button @click="add">新增</el-button>
         <el-button @click="refresh">刷新</el-button>
@@ -110,6 +51,9 @@
         <el-table-column key="location" label="库位" prop="location">
         </el-table-column>
         <el-table-column key="is_type" label="入库类型" prop="is_type">
+          <template slot-scope="scope">
+            {{getType(scope.row.is_type)}}
+          </template>
         </el-table-column>
         <el-table-column key="check_name" label="审核人" prop="check_name">
         </el-table-column>
@@ -128,8 +72,7 @@
           :filter-method="filterHandler"
         >
           <template slot-scope="scope">
-            <!-- <i  :class="getStatus(scope.row)"></i> -->
-            {{ getStatus(scope.row) }}
+            <i :class="getStatus(scope.row)" :style="{'color': getColor(scope.row.is_status)}" ></i>
           </template>
         </el-table-column>
         <el-table-column key="in_date" label="入库日期" prop="in_date" sortable>
@@ -148,7 +91,7 @@
               <el-button
                 size="mini"
                 type="primary"
-                v-if="row.is_status == 1 && row.in_store_num !== row.is_num"
+                v-if="row.is_status == 1 && row.in_store_num !== row.is_num && row.is_type == 0"
                 @click="editCode(row)"
                 icon="el-icon-edit"
               ></el-button>
@@ -282,6 +225,10 @@ export default {
     this.getList();
   },
   methods: {
+        getType(value) {
+      console.log(value);
+      return this.typeOptions[value];
+    },
     getId(index) {
       return index + 1;
     },
@@ -296,6 +243,7 @@ export default {
     filterHandler(value, row, column) {
       const property = column["property"];
       return row[property] === value;
+      
     },
     getFilter(list) {
       list.forEach((row) => {
@@ -322,6 +270,16 @@ export default {
           });
         }
       });
+    },
+    getColor(status){
+      if(status == 1){
+        return '#67c23A';
+      }else if(status == 0){
+        return "#E6A23C";
+      }else{
+        return "#F56C6C";
+      }
+      
     },
     editCode(row) {
       this.$router.push({
@@ -410,8 +368,15 @@ export default {
     },
     getStatus(value) {
       console.log(value.is_status);
+      if(value.is_status == 1){
+        return "el-icon-success"
+      }else if(value.is_status == 0){
+        return "el-icon-video-pause"
+      }else{
+        return "el-icon-error";
+      }
       //return 'el-icon-delete'
-      return this.statusOptions[value.is_status];
+      //return this.statusOptions[value.is_status];
     },
     handelData(list) {
       list.forEach((element) => {
@@ -419,9 +384,9 @@ export default {
           // if (k == "is_status") {
           //   element[k] = this.statusOptions[element[k]];
           // }
-          if (k == "is_type") {
-            element[k] = this.typeOptions[element[k]];
-          }
+          // if (k == "is_type") {
+          //   element[k] = this.typeOptions[element[k]];
+          // }
         }
       });
     },

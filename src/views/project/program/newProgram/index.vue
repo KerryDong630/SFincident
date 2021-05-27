@@ -31,8 +31,9 @@
             :sm="12"
             :lg="8"
           >
-            <el-form-item :label="item.name">
+            <el-form-item :label="item.name" :required="item.force">
               <el-input
+                
                 v-model="item.value"
                 v-if="item.key !== 'order_time'"
               ></el-input>
@@ -172,7 +173,7 @@ export default {
       // 运行上传文件大小，单位 M
       fileSize: 10,
       formDes: {
-        label: "合同信息",
+        label: "任务信息",
         data: [
           {
             name: "任务书编码",
@@ -251,6 +252,12 @@ export default {
       this.select = response.data;
       console.log(response);
     });
+  },
+   mounted: function () {
+    if (this.$route.query.pro_name) {
+      this.form.pro_name = this.$route.query.pro_name;
+    }
+    //this.getList(this.order_number);
   },
   methods: {
     downLoad(){},
@@ -340,14 +347,14 @@ export default {
         });
     },
     onSubmit() {
-      if (
-        !this.form.program_id ||
-        !this.form.task_form_id ||
-        !this.form.order_id
-      ) {
-        this.$message.error("请上传相关文件再提交");
-        return;
-      }
+      // if (
+      //   !this.form.program_id ||
+      //   !this.form.task_form_id ||
+      //   !this.form.order_id
+      // ) {
+      //   this.$message.error("请上传相关文件再提交");
+      //   return;
+      // }
       this.formDes.data.forEach((element) => {
         this.form[element.key] = element.value;
       });

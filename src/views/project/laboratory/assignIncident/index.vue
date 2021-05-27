@@ -74,12 +74,22 @@
           key="original_id"
         >
         </el-table-column>
+        <el-table-column
+          label="试验件状态"
+          prop="component_status1"
+          key="component_status1"
+        >
+           <template slot-scope="scope">
+            {{ getStatus(scope.row) }}
+          </template>
+        </el-table-column>
         <el-table-column label="实验员" prop="experimenter" key="experimenter">
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.experimenter"
               placeholder="实验员"
               clearable
+              :disabled = "scope.row.component_status1 == 5"
               class="filter-item"
             >
               <el-option
@@ -117,6 +127,14 @@
 </template>
 
 <script>
+const componentStatus = {
+  0: "待分配",
+  1: "已分配",
+  2: "实验中",
+  3: "实验结束",
+  4: "待审核",
+  5:"报废"
+};
 import { getUsersList } from "@/api/user";
 import global_msg from "@/utils/global";
 
@@ -132,6 +150,7 @@ export default {
       program_form_url: "",
       form_url: "",
       fileName: "",
+      componentStatus,
       current_step: null,
       process_id: null,
       users: null,
@@ -153,6 +172,9 @@ export default {
     this.getUsersList();
   },
   methods: {
+       getStatus: function (row) {
+      return componentStatus[row.component_status1];
+    },
     loadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
       this.fileName =

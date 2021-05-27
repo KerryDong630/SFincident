@@ -94,7 +94,7 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作2" width="150">
+        <el-table-column fixed="right" label="操作2" width="120">
           <template slot-scope="scope">
             <el-button
               type="text"
@@ -110,6 +110,7 @@
               :file-list="fileList"
               class="upload"
               :http-request="uploadFile"
+              style="margin-left:0px"
             >
               <!--此处使用自定义上传实现http-request-->
               <el-button
@@ -130,6 +131,7 @@
             <el-button
               type="danger"
               size="small"
+              v-if="scope.row.component_status1 !== 5"
               @click="removeComponent(scope.$index, scope.row)"
             >
               报损
@@ -154,7 +156,7 @@ import {
   putAssignProcess,
   putProcessStatus,
 } from "@/api/process";
-import { addComponents } from "@/api/component";
+import { addComponents,reportFailure } from "@/api/component";
 import { uploadFile } from "@/api/file";
 
 const componentStatus = {
@@ -163,6 +165,7 @@ const componentStatus = {
   2: "实验中",
   3: "实验结束",
   4: "待审核",
+  5:"报废"
 };
 export default {
   data() {
@@ -326,6 +329,30 @@ export default {
         body.removeChild(link);
         window.URL.revokeObjectURL(link.href);
       }
+    },
+    removeComponent:function(index,row){
+     this.$confirm("确定此试验件报损?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+        console.log(row);
+         reportFailure(row.component_unique_id).then(response=>{
+           this.$message({
+             type:"success",
+              message: "试验件报损成功",
+           })
+            this.getAssignList();
+         })
+         
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     submitComponent: function (row) {
       //试验件状态变为待审核

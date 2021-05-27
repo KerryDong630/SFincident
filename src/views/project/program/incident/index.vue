@@ -66,52 +66,7 @@
         </div>
       </el-col>
     </el-row>
-    <!-- <div class="filter-container">
-      <el-input
-        v-model="listQuery.title"
-        placeholder="工单编号"
-        style="width: 200px"
-        class="filter-item"
-        @keyup.enter.native="handleFilter"
-      />
-      <el-select
-        v-model="listQuery.importance"
-        placeholder="工单状态"
-        clearable
-        style="width: 90px"
-        class="filter-item"
-      >
-        <el-option
-          v-for="item in importanceOptions"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
-      <el-date-picker v-model="value1" class="selection-date" type="date" placeholder="选择日期">
-      </el-date-picker>
-
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >
-        Search
-      </el-button>
-
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        Export
-      </el-button>
-    </div> -->
+  
     <div class="tool-button">
       <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
     </div>
@@ -123,11 +78,7 @@
       style="width: 100%"
       @sort-change="sortChange"
     >
-      <el-table-column key="ID" label="编号" prop="IDs">
-        <template slot-scope="scope">
-          {{ getId(scope.$index) }}
-        </template>
-      </el-table-column>
+     
       <el-table-column
         :key="col.prop"
         :label="col.label"

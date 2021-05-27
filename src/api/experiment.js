@@ -8,3 +8,10 @@ export function getTemplateEx() {
     method: 'get'
   })
 }
+export function getEpxList() {
+  return requestdev({
+    url: '/experimentlist',
+    method: 'get'
+  })
+}
+

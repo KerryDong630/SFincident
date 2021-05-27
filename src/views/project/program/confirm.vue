@@ -21,7 +21,10 @@
               :label="lables[key]"
               v-if="showLables.indexOf(key) > -1"
             >
-              <el-input :value="value"></el-input>
+              <el-input :value="value" v-show="key !== 'is_type'"></el-input>
+              <el-input v-show="key == 'is_type'">{{
+                getType(value)
+              }}</el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -33,7 +36,6 @@
             :limit="1"
             :file-list="fileList"
             class="upload"
-            
             :http-request="uploadFile"
           >
             <!--此处使用自定义上传实现http-request-->
@@ -64,6 +66,12 @@ import global_msg from "@/utils/global";
 import { uploadFile } from "@/api/file";
 
 import { getConfirmInstore, confirmInstore } from "@/api/inStore";
+const typeOptions = {
+  "0": "待测样品",
+  "1": "已完成样品",
+  "2": "问题样品",
+};
+
 const lables = {
   pro_name: "项目名称",
   company: "委托公司名称",
@@ -132,6 +140,7 @@ export default {
       lables,
       loadind: false,
       showLables,
+      typeOptions,
       form: {
         lable: "入库基础信息",
         data: [
@@ -186,6 +195,10 @@ export default {
     this.getList(this.order_number);
   },
   methods: {
+    getType(value) {
+      console.log(value);
+      return this.typeOptions[value];
+    },
     uploadFile(file) {
       //更新检查单
       const param = new FormData();
@@ -231,14 +244,12 @@ export default {
       return flag;
     },
     saveFileName(value) {
+      this.fileName = value + "_检查单";
+      var url = this.downLoadUrl;
 
-          this.fileName = value + "_检查单";
-          var url = this.downLoadUrl;
-
-          this.getBlob(url).then((blob) => {
-            this.saveAs(blob, this.fileName);
-          });
-        
+      this.getBlob(url).then((blob) => {
+        this.saveAs(blob, this.fileName);
+      });
     },
     /**
      * 获取 blob
@@ -324,7 +335,7 @@ export default {
         is_num: is_num,
         check_time: parseTime(new Date(), "{y}{m}{d}"),
         check_name: store.getters.name,
-        sign_check_form_id:this.sign_check_form_id
+        sign_check_form_id: this.sign_check_form_id,
       };
       confirmInstore(data).then((response) => {
         // this.dialogFormVisible = false;
@@ -337,6 +348,7 @@ export default {
       });
     },
     getList(id) {
+      console.log(this.typeOptions)
       this.loadind = true;
       getConfirmInstore(id).then((response) => {
         // this.dialogFormVisible = false;

@@ -35,20 +35,22 @@
       </el-select>
       <br />
       <el-upload
-        style="margin-top: 20px"
+        style="margin-top: 20px;margin-right:20px"
         ref="upload"
         action="https://jsonplaceholder.typicode.com/posts/"
         :limit="1"
         :file-list="fileList"
         class="upload"
-        :on-error="onError"
+        :auto-upload="false"
         :http-request="uploadFile"
       >
         <!--此处使用自定义上传实现http-request-->
         <el-button slot="trigger" type="primary">上传模板文件</el-button>
       </el-upload>
+       <el-button @click="uploadFile" type="primary">确认</el-button>
     </el-main>
-    <el-footer> </el-footer>
+    <el-footer>
+       </el-footer>
   </el-container>
 </template>
 
@@ -195,8 +197,10 @@ export default {
       return strRebuild(str);
     },
     uploadFile(file) {
+      // console.log(this.$refs.upload.uploadFiles[0].raw)
+      // console.log(file)
       const param = new FormData();
-      param.append("file", file.file);
+      param.append("file", this.$refs.upload.uploadFiles[0].raw);
       // param.append("filename", file.file.name), param.append("f_id", "");
       //param.append("u_id", store.getters.name);
       //param.append("file_type", "updated");
