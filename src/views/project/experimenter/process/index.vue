@@ -56,9 +56,12 @@
           :description="'当前工序负责人:' + pre.process_owner"
         ></el-step>
       </el-steps>
-      <el-table stripe :data="form.componentlist" 
-      :cell-style="{ padding: '0', height: '10rem' }"
-      style="margin-top: 20px">
+      <el-table
+        stripe
+        :data="form.componentlist"
+        :cell-style="{ padding: '0', height: '10rem' }"
+        style="margin-top: 20px"
+      >
         <el-table-column
           label="试验件编码"
           prop="component_unique_id"
@@ -94,7 +97,7 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作2" width="120">
+        <el-table-column fixed="right" label="操作2" width="250">
           <template slot-scope="scope">
             <el-button
               type="text"
@@ -110,13 +113,13 @@
               :file-list="fileList"
               class="upload"
               :http-request="uploadFile"
-              style="margin-left:0px"
+              style="margin-left: 0px"
             >
               <!--此处使用自定义上传实现http-request-->
               <el-button
                 slot="trigger"
                 type="text"
-                 size="small"
+                size="small"
                 @click="loadComponent(scope.$index, scope.row)"
                 >上传实验单</el-button
               >
@@ -128,6 +131,7 @@
             >
               上传实验单
             </el-button> -->
+            <br/>
             <el-button
               type="danger"
               size="small"
@@ -156,7 +160,7 @@ import {
   putAssignProcess,
   putProcessStatus,
 } from "@/api/process";
-import { addComponents,reportFailure } from "@/api/component";
+import { addComponents, reportFailure } from "@/api/component";
 import { uploadFile } from "@/api/file";
 
 const componentStatus = {
@@ -165,7 +169,7 @@ const componentStatus = {
   2: "实验中",
   3: "实验结束",
   4: "待审核",
-  5:"报废"
+  5: "报废",
 };
 export default {
   data() {
@@ -330,22 +334,21 @@ export default {
         window.URL.revokeObjectURL(link.href);
       }
     },
-    removeComponent:function(index,row){
-     this.$confirm("确定此试验件报损?", "提示", {
+    removeComponent: function (index, row) {
+      this.$confirm("确定此试验件报损?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-        console.log(row);
-         reportFailure(row.component_unique_id).then(response=>{
-           this.$message({
-             type:"success",
+          console.log(row);
+          reportFailure(row.component_unique_id).then((response) => {
+            this.$message({
+              type: "success",
               message: "试验件报损成功",
-           })
+            });
             this.getAssignList();
-         })
-         
+          });
         })
         .catch(() => {
           this.$message({
@@ -355,6 +358,11 @@ export default {
         });
     },
     submitComponent: function (row) {
+      console.log(row)
+      if(!row.experiment_sheet_id){
+         this.$message.error("请上传实验单再提交！");
+        return
+      }
       //试验件状态变为待审核
       this.$confirm("确定提交此试验件?", "提示", {
         confirmButtonText: "确定",

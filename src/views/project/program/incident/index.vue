@@ -104,6 +104,7 @@ const lables = {
   process_name: "当前环节",
   experimenter: "试验员",
   process_status: "状态",
+  order_number:"委托单号",
   create_at: "创建时间",
   start_time_d: "开始时间",
   end_time_d: "结束时间",

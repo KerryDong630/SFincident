@@ -15,7 +15,7 @@
         <el-select
           v-model="ifOrigCode"
           placeholder="*是否有原始码"
-          clearable
+          
           @change="selectChange"
           style="width: 150px"
           class="filter-item"
@@ -65,7 +65,11 @@
         </el-table-column>
         <el-table-column key="testType" prop="testType" label="测试项目类型">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.testType" placeholder="请选择">
+            <el-select
+              v-model="scope.row.testType"
+              clearable
+              placeholder="请选择"
+            >
               <el-option
                 v-for="item in tyarr"
                 :key="item.value"
@@ -82,7 +86,11 @@
           label="材料代码"
         >
           <template slot-scope="scope">
-            <el-select v-model="scope.row.materialCode" placeholder="请选择">
+            <el-select
+              v-model="scope.row.materialCode"
+              clearable
+              placeholder="请选择"
+            >
               <el-option
                 v-for="item in mcarr"
                 :key="item.value"
@@ -95,7 +103,11 @@
         </el-table-column>
         <el-table-column key="craftCode" prop="craftCode" label="工艺代码">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.craftCode" placeholder="请选择">
+            <el-select
+              v-model="scope.row.craftCode"
+              clearable
+              placeholder="请选择"
+            >
               <el-option
                 v-for="item in pcarr"
                 :key="item.value"
@@ -156,7 +168,7 @@ import { getTemFileId, getTemFile } from "@/api/file";
 import { deepCopy } from "@/utils";
 import global_msg from "@/utils/global";
 import { getRulesList } from "@/api/rule";
-
+import { getInstore } from "@/api/inStore";
 const newObj = {
   orderNum: "",
   testType: "",
@@ -235,9 +247,15 @@ export default {
   mounted: function () {
     this.order_number = this.$route.query.order_number;
     this.instore_id = this.$route.query.id;
+    this.is_num = getStoreInfo(this.instore_id);
     //this.getList(this.order_number);
   },
   methods: {
+    getStoreInfo(id) {
+      getInstore(id).then((response) => {
+        return response.is_num;
+      });
+    },
     getRules() {
       getRulesList().then((respones) => {
         var ruleList = respones.data;
@@ -272,7 +290,8 @@ export default {
       });
     },
     addNewLine() {
-      this.tableDataNoOrig.push(this.newObj);
+      var obj = deepCopy(this.newObj)
+      this.tableDataNoOrig.push(obj);
     },
     selectChange() {
       console.log(this.ifOrigCode);
@@ -350,9 +369,12 @@ export default {
             试验件编号: e["component_unique_id"],
           });
         });
-
         this.tableHeader = ["编号", "试验件原始编号", "试验件编号"];
       }
+      // if (data.length !== this.is_num) {
+      //   this.$message.error('提交数量和入库试验件数量不相符，请检查！')
+      //   return
+      // }
       console.log(data);
       var result = {
         data: data,
@@ -396,6 +418,17 @@ export default {
       });
       return arr;
     },
+    RandomCode() {
+      for (var j = 0; j < 10; j++) {
+        var randStr = "";
+        for (var i = 0; i < 5; i++) {
+          //此处的12为生成12位数字，可随即更改
+          var randItem = Math.floor(Math.random() * 10);
+          randStr += randItem;
+        }
+        return randStr;
+      }
+    },
     generateRuleId(table) {
       var uuid = "";
       var arr = [];
@@ -410,7 +443,8 @@ export default {
           arr.push(table[key]);
         }
       }
-      arr = this.notempty(arr)
+      arr.push(this.RandomCode());
+      arr = this.notempty(arr);
       uuid = arr.join("-");
       return uuid;
     },

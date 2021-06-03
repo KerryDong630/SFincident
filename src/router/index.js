@@ -283,9 +283,9 @@ export const scynRoutes = {
     ]
   },
   "laboratory": {
-    'path': '/laboratory',
+    'path': '/incidentOverview',
     'name': 'laboratory',
-    'redirect': '/project/laboratory/',
+    'redirect': '/incidentOverview',
     'component': 'Layout',
     'meta': {
       'title': '工单-实验室',
@@ -296,7 +296,7 @@ export const scynRoutes = {
         path: '/incidentOverview',
         component: 'project/laboratory/incidentOverview/index',
         name: 'incidentOverview',
-        meta: { title: '工单 实验室主管' }
+        meta: { title: '工单-实验室' }
       },
       {
         path: '/assignIncident',
@@ -317,9 +317,9 @@ export const scynRoutes = {
   },
   "experimenter":
   {
-    'path': 'experimenter',
+    'path': '/experIncident',
     'name': 'experimenter',
-    'redirect': '/project/experimenter/',
+    'redirect': '/experIncident',
     'component': 'Layout',
     'meta': {
       'title': '工单-试验员',
@@ -409,12 +409,12 @@ export const scynRoutes = {
         name: 'incident',
         meta: { title: '工单' }
       },
-      {
-        path: '/manageOutStore',
-        component: 'project/program/outStore/index',
-        name: 'manageOutStore',
-        meta: { title: '出库管理' }
-      }
+      // {
+      //   path: '/manageOutStore',
+      //   component: 'project/program/outStore/index',
+      //   name: 'manageOutStore',
+      //   meta: { title: '出库管理' }
+      // }
       // {
 
       //   'path': 'program',

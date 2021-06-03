@@ -60,6 +60,15 @@ export function deepCopy(source) {
   return JSON.parse(JSON.stringify(source))
 
 }
+export function deleteArr(source,filed,condition){
+  for (let i = 0, len = source.length; i < len; i++) {
+    if (source[i][filed] == condition ) {
+      source.splice(i, 1);
+      i--;
+      len--;
+    }
+  }
+}
 export function strRebuild(arr, split) {
   if (arr === undefined || arr === null || !(arr instanceof Array) || arr.length === 0) {
   return ''

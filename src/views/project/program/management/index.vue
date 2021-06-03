@@ -54,10 +54,11 @@
         </el-table-column>
         <el-table-column key="sample_num" label="样品数量" prop="sample_num">
         </el-table-column>
+             <el-table-column key="w_sum" label="等待入库" prop="w_sum">
+        </el-table-column>
         <el-table-column key="in_store_num" label="已入库" prop="in_store_num">
         </el-table-column>
-        <el-table-column key="w_sum" label="等待入库" prop="w_sum">
-        </el-table-column>
+   
         <el-table-column
           key="in_experiment"
           label="实验中"

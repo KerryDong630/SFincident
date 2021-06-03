@@ -77,16 +77,16 @@
         </el-table-column>
         <el-table-column key="in_date" label="入库日期" prop="in_date" sortable>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="250">
+        <el-table-column fixed="right" label="操作" width="180">
           <template slot-scope="{ row }">
-            <el-tooltip content="查看" placement="top">
+            <!-- <el-tooltip content="查看" placement="top">
               <el-button
                 size="mini"
                 type="primary"
                 @click="showDetail(row)"
                 icon="el-icon-tickets"
               ></el-button>
-            </el-tooltip>
+            </el-tooltip> -->
             <el-tooltip content="填写试验件编码" placement="top">
               <el-button
                 size="mini"

@@ -7,6 +7,22 @@ export function getInstoreList() {
     method: 'get',
   })
 }
+
+export function getOutstoreList() {
+  return requestdev({
+    url: '/outstores',
+    method: 'get',
+  })
+}
+
+export function addOutstore(data) {
+  return requestdev({
+    url: '/outstores',
+    method: 'post',
+    data
+  })
+}
+
 export function addInstore(data) {
   return requestdev({
     url: '/instores',
@@ -21,7 +37,12 @@ export function putInstore(id,data) {
     data
   })
 }
-
+export function getInstore(id) {
+  return requestdev({
+    url: '/instore/'+id,
+    method: 'get',  
+  })
+}
 export function getConfirmInstore(order_number) {
   return requestdev({
     url: '/confirmInstore/' + order_number,

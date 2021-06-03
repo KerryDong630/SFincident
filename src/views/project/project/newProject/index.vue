@@ -126,11 +126,11 @@ export default {
           },
         ],
         postcode: [
-          { required: true, message: "请输入邮编地址", trigger: "blur" },
+          { required: false, message: "请输入邮编地址", trigger: "blur" },
+           { min: 6, max: 6, message: "请输入正确的邮编地址", trigger: "blur" },
           {
-            type: "number",
+            pattern: /^[0-9]{6}$/,
             message: "请输入正确的邮编地址",
-            trigger: ["blur", "change"],
           },
         ],
         tele_phone: [

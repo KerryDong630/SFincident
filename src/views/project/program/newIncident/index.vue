@@ -110,7 +110,7 @@
               placeholder="选择日期"
               v-model="scope.row.end_time_d"
               style="width: 100%"
-              @change="getRange(scope.row,scope.$index)"
+              @change="getRange(scope.row, scope.$index)"
             ></el-date-picker>
           </template>
         </el-table-column>
@@ -174,7 +174,12 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="scope">
-            <el-button type="text" size="small" style="margin-left: 0px" @click="downLoad(scope.row)">
+            <el-button
+              type="text"
+              size="small"
+              style="margin-left: 0px"
+              @click="downLoad(scope.row)"
+            >
               下载试验单
             </el-button>
 
@@ -185,7 +190,6 @@
               :file-list="fileList"
               class="upload"
               style="margin-left: 0px"
-
               :http-request="uploadFile"
             >
               <!--此处使用自定义上传实现http-request-->
@@ -330,7 +334,7 @@ export default {
       showColumns,
       experimentKey,
       template: null,
-      fileName:"",
+      fileName: "",
       typeSeletion: [],
       multipleSelection: [],
       componentList: null,
@@ -352,6 +356,7 @@ export default {
         "png",
         "jpeg",
       ],
+      templateFile: {},
       formDes: {
         data: [
           {
@@ -396,7 +401,6 @@ export default {
     //this.getList(this.order_number);
   },
   methods: {
-   
     /**
      * 获取 blob
      * url 目标文件地址
@@ -435,18 +439,27 @@ export default {
         window.URL.revokeObjectURL(link.href);
       }
     },
+    getTemplateFile(){
+
+    },
     downLoad(row) {
       var process = row.process_name;
-      var pKey = this.experimentKey[process];
+      var type = this.form.experi_type; //工单类型
+      var step = row.step_number; //工序步骤
+      var fileType = "5"; //实验模板为5
+
+      var pKey = fileType + type + step;
+
       getTemFileId(pKey).then((response) => {
         this.form_id = response.f_id;
         console.log(this.form_id);
+        this.templateFile[response.f_key] = response.f_id;
         this.form_url = global_msg.host + "/getFile/" + this.form_id;
         var url = this.form_url;
-        this.fileName = this.form.order_number+"_"+process+"模板";
-         this.getBlob(url).then((blob) => {
-            this.saveAs(blob, this.fileName);
-          });
+        this.fileName = this.form.order_number + "_" + process + "模板";
+        this.getBlob(url).then((blob) => {
+          this.saveAs(blob, this.fileName);
+        });
       });
     },
     getIndex(index) {
@@ -533,11 +546,10 @@ export default {
 
       console.log(index);
     },
-    getRange(row,index) {
+    getRange(row, index) {
       var range = row.end_time_d - row.start_time_d;
-      if(this.listTable[index+1]){
-      this.listTable[index+1].start_time_d = row.end_time_d;
-
+      if (this.listTable[index + 1]) {
+        this.listTable[index + 1].start_time_d = row.end_time_d;
       }
       console.log(range);
       row.range_time = range;
@@ -576,6 +588,20 @@ export default {
       });
 
       console.log(this.listTable);
+      this.listTable.forEach(element=>{
+      var type = this.form.experi_type; //工单类型
+      var step = element.step_number; //工序步骤
+      var fileType = "5"; //实验模板为5
+      var pKey = fileType + type + step;
+
+      getTemFileId(pKey).then((response) => {
+   
+        this.templateFile[pKey] = response.f_id;
+
+      });
+       console.log(this.templateFile)
+      })
+     
       //this.getTableColumnList(this.listTable);
     },
     getTemplateEx() {
@@ -604,13 +630,16 @@ export default {
       });
     },
     onSubmit() {
-      this.listTable.forEach(element=>{
-        if(!element.experiment_sheet_id){
-        var process = element.process_name;
-        var pKey = this.experimentKey[process];
-        element.experiment_sheet_id = pKey;
+      this.listTable.forEach((element) => {
+        if (!element.experiment_sheet_id) {
+          var type = this.form.experi_type; //工单类型
+          var step = element.step_number; //工序步骤
+          var fileType = "5"; //实验模板为5
+          var pKey = fileType + type + step;
+          element.experiment_sheet_id = this.templateFile[pKey];
+        
         }
-      })
+      });
       this.form["process_list"] = this.listTable;
       this.form["component_list"] = this.testList;
       console.log(this.form);

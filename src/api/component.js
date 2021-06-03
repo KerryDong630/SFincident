@@ -25,7 +25,7 @@ export function addExComponent(id) {
 export function loadCodeComponent(id) {
   return requestdev({
     url: 'loadCodeComponent/' + id,
-    method: 'put',
+    method: 'get',
 
   })
 }
@@ -38,6 +38,13 @@ export function scanCode(data) {
   })
 }
 
+export function checkComponent(data) {
+  return requestdev({
+    url: '/checkComponent',
+    method: 'post',
+    data
+  })
+}
 
 export function reportFailure(id) {
   return requestdev({

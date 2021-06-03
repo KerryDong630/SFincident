@@ -13,6 +13,7 @@
           @click="onDelete"
           icon="el-icon-delete"
         ></el-button>
+        <el-button @click="addNewLine">增加</el-button>
       </div>
       <el-table
         :data="tableData"
@@ -23,13 +24,13 @@
         style="width: 100%; margin-top: 20px"
       >
         <el-table-column type="selection" width="55"> </el-table-column>
-        <el-table-column prop="编号" label="编号" />
-        <el-table-column prop="试验件原始编号" label="试验件原始编号" />
-        <el-table-column prop="试验件编号" label="试验件编号">
+        <el-table-column prop="id" label="编号" />
+        <el-table-column prop="component_unique_id" label="试验件编号">
           <template slot-scope="scope">
             <el-input
-              v-model="scope.row.试验件编号"
+              v-model="scope.row.component_unique_id"
               controls-position="right"
+              @change="checkComponent(scope.row.component_unique_id)"
             />
           </template>
           ></el-table-column
@@ -45,14 +46,14 @@
 
 <script>
 import UploadExcelComponent from "@/components/UploadExcel/index.vue";
-import { deepCopy } from "@/utils";
+import { deepCopy,deleteArr} from "@/utils";
 import {
   getAssignProcess,
   putAssignProcess,
   putProcessStatus,
 } from "@/api/process";
 import { putInstore } from "@/api/inStore";
-import { scanCode } from "@/api/component";
+import { scanCode, checkComponent } from "@/api/component";
 export default {
   components: { UploadExcelComponent },
 
@@ -62,8 +63,13 @@ export default {
       filename: "自动生成扭转码",
       autoWidth: true,
       bookType: "xlsx",
-      tableData: [],
-      tableHeader: [],
+      tableData: [
+        {
+          id: 1,
+          component_unique_id: "",
+        },
+      ],
+      tableHeader: ["编号", "试验件编号"],
       list: null,
       multipleSelection: [],
     };
@@ -74,6 +80,29 @@ export default {
     this.id = this.$route.query.id;
   },
   methods: {
+    checkComponent(id) {
+      var data = {
+        component_unique_id: id,
+        id: this.id,
+        is_type:0
+      };
+      checkComponent(data).then((response) => {
+        this.$message({
+          message: response.message,
+          type: "warning",
+        });
+      });
+       this.tableData.push({
+        id: this.tableData.length + 1,
+        component_unique_id: "",
+      });
+    },
+    addNewLine() {
+      this.tableData.push({
+        id: this.tableData.length + 1,
+        component_unique_id: "",
+      });
+    },
     onDelete() {
       this.$confirm("此操作将删除这些数据, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -81,13 +110,12 @@ export default {
         type: "warning",
       })
         .then(() => {
-          this.tableData.forEach((element, index) => {
+
+         
             this.multipleSelection.forEach((e) => {
-              if (element.试验件编号 == e.试验件编号) {
-                delete this.tableData[index];
-              }
+              deleteArr(this.tableData,'component_unique_id',e.component_unique_id)
             });
-          });
+      
           this.$message({
             type: "success",
             message: "删除成功!",
@@ -114,17 +142,14 @@ export default {
       console.log(this.tableData);
       var data = deepCopy(this.tableData);
       data.forEach((e) => {
-        e["original_id"] = e[this.tableHeader[1]];
-        e["component_unique_id"] = e[this.tableHeader[2]];
-
-        delete e[this.tableHeader[1]];
-        delete e[this.tableHeader[2]];
-        delete e[this.tableHeader[0]];
-        e["component_status"] = 1;
+        // e["original_id"] = e[this.tableHeader[1]];
+        // e["component_unique_id"] = e[this.tableHeader[2]];
+        delete e["id"];
+        e["component_status"] = 1; //确认入库
         //e["component_status1"] = 0;
       });
       console.log(data);
-      this.$confirm("确定确认上述试验件入库?", "提示", {
+      this.$confirm("确定上述试验件入库?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -135,10 +160,10 @@ export default {
             id: this.id,
           }).then((respones) => {
             console.log(respones);
-            if (respones.message == "Success") {
+            // if (respones.message == "Success") {
               putAssignProcess({
                 data: data,
-                id:this.id
+                id: this.id,
               }).then((respones) => {
                 console.log(respones);
                 this.changeInstore(data.length);
@@ -149,12 +174,12 @@ export default {
                 });
               });
               //可以扫码入库
-            } else {
-              //不符合入库规则
-              this.$message.error(
-                `有${respones.data.length}条数据不满足入库要求,请检查后再提交`
-              );
-            }
+            // } else {
+            //   //不符合入库规则
+            //   this.$message.error(
+            //     `有${respones.data.length}条数据不满足入库要求,请检查后再提交`
+            //   );
+            // }
           });
         })
         .catch(() => {
@@ -184,7 +209,7 @@ export default {
       // });
       this.tableData = results;
 
-      this.tableHeader = header;
+     // this.tableHeader = header;
     },
     generateUUID() {
       var d = new Date().getTime();

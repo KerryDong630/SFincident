@@ -35,7 +35,7 @@
       </el-select>
       <br />
       <el-upload
-        style="margin-top: 20px;margin-right:20px"
+        style="margin-top: 20px; margin-right: 20px"
         ref="upload"
         action="https://jsonplaceholder.typicode.com/posts/"
         :limit="1"
@@ -47,14 +47,15 @@
         <!--此处使用自定义上传实现http-request-->
         <el-button slot="trigger" type="primary">上传模板文件</el-button>
       </el-upload>
-       <el-button @click="uploadFile" type="primary">确认</el-button>
+      <el-button @click="uploadFile" type="primary">确认</el-button>
     </el-main>
-    <el-footer>
-       </el-footer>
+    <el-footer> </el-footer>
   </el-container>
 </template>
 
 <script>
+import { getEpxList } from "@/api/experiment";
+
 import { uploadFile, postTemFile } from "@/api/file";
 export default {
   data() {
@@ -77,29 +78,29 @@ export default {
       // 运行上传文件大小，单位 M
       fileSize: 10,
       tempname: "",
-      tempid:"",
-     processname: "",
-      processOptions:[
-      {
-          key: 1,
-          value: "测量工序",
-        },
-        {
-          key: 2,
-          value: "无损工序",
-        },
-        {
-          key: 3,
-          value: "冲击工序",
-        },
-        {
-          key: 4,
-          value: "应变剂黏贴工序",
-        },
-        {
-          key: 5,
-          value: "压缩工序",
-        },
+      tempid: "",
+      processname: "",
+      processOptions: [
+        // {
+        //     key: 'CAI0',
+        //     value: "CAI尺寸测量",
+        //   },
+        //   {
+        //     key: 'CAI1',
+        //     value: "CAI无损工序",
+        //   },
+        //   {
+        //     key: 'CAI2',
+        //     value: "CAI冲击工序",
+        //   },
+        //   {
+        //     key: 'CAI3',
+        //     value: "CAI应变剂黏贴工序",
+        //   },
+        //   {
+        //     key: 'CAI4',
+        //     value: "CAI压缩工序",
+        //   },
       ],
       temOptions: [
         {
@@ -122,34 +123,47 @@ export default {
           key: 5,
           value: "试验单",
         },
-         {
+        {
           key: 6,
           value: "试验件编码模板",
         },
-        
       ],
     };
   },
   methods: {
+    getEpxList() {
+      getEpxList().then((response) => {
+        response.data.forEach((element) => {
+          var key = element.experi_type + element.experi_step;
+          var type = element.experi_type
+          var value = type+"_"+element.experiment_name;
+          this.processOptions.push({
+            key: key,
+            value: value,
+          });
+        });
+      });
+    },
     getFileName(key) {
       this.temOptions.forEach((ele) => {
         if (ele.key == key) return (this.fileDes = ele.value);
       });
     },
     postTemFile(data) {
-      postTemFile(data['f_key'],data).then((response) => {
+      postTemFile(data["f_key"], data).then((response) => {
         console.log(response);
       });
     },
-    processChange(){
-      console.log(this.processname)
-      this.tempid = this.tempid.toString()+this.processname.toString()
-       this.processOptions.forEach((ele) => {
+    processChange() {
+      console.log(this.processname);
+      this.tempid = this.tempname.toString() + this.processname.toString();
+      this.processOptions.forEach((ele) => {
         if (ele.key == this.processname) {
-            this.fileDes = ele.value
+          this.fileDes = ele.value;
         }
       });
-      console.log(this.tempid)
+      console.log(this.tempid);
+      this.handleRemove();
     },
     fileChange() {
       console.log(this.tempname);
@@ -246,6 +260,9 @@ export default {
           });
         });
     },
+  },
+  created() {
+    this.getEpxList();
   },
 };
 </script>

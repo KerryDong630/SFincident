@@ -21,10 +21,8 @@
               :label="lables[key]"
               v-if="showLables.indexOf(key) > -1"
             >
-              <el-input :value="value" v-show="key !== 'is_type'"></el-input>
-              <el-input v-show="key == 'is_type'">{{
-                getType(value)
-              }}</el-input>
+              <el-input :value="value" v-if="key !== 'is_type'"></el-input>
+              <el-input v-if="key == 'is_type'" :value="getType(value)"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -67,9 +65,9 @@ import { uploadFile } from "@/api/file";
 
 import { getConfirmInstore, confirmInstore } from "@/api/inStore";
 const typeOptions = {
-  "0": "待测样品",
-  "1": "已完成样品",
-  "2": "问题样品",
+  0: "待测样品",
+  1: "已完成样品",
+  2: "问题样品",
 };
 
 const lables = {
@@ -197,6 +195,7 @@ export default {
   methods: {
     getType(value) {
       console.log(value);
+      console.log(this.typeOptions[value])
       return this.typeOptions[value];
     },
     uploadFile(file) {

@@ -177,19 +177,19 @@ export default {
         data: [
           {
             name: "任务书编码",
-            force: true,
+            force: false,
             value: "",
             key: "task_id",
           },
           {
             name: "试验大纲编码",
-            force: true,
+            force: false,
             value: "",
             key: "program_code",
           },
           {
             name: "试验任务书名称",
-            force: true,
+            force: false,
             value: "",
             key: "task_name_book",
           },
@@ -198,12 +198,6 @@ export default {
             force: true,
             value: "",
             key: "order_time",
-          },
-          {
-            name: "备注信息",
-            force: true,
-            value: "",
-            key: "remarks",
           },
           {
             name: "检测项目名称",
@@ -220,7 +214,7 @@ export default {
           },
           {
             name: "试验任务课题组/合同号",
-            force: true,
+            force: false,
             value: "",
             key: "contract_id",
           },
@@ -243,6 +237,12 @@ export default {
             value: "",
             key: "sample_num",
           },
+          {
+            name: "备注信息",
+            force: false,
+            value: "",
+            key: "remarks",
+          }
         ],
       },
     };
@@ -347,14 +347,12 @@ export default {
         });
     },
     onSubmit() {
-      // if (
-      //   !this.form.program_id ||
-      //   !this.form.task_form_id ||
-      //   !this.form.order_id
-      // ) {
-      //   this.$message.error("请上传相关文件再提交");
-      //   return;
-      // }
+      if (
+        !this.form.order_id
+      ) {
+        this.$message.error("请上传委托书再提交！");
+        return;
+      }
       this.formDes.data.forEach((element) => {
         this.form[element.key] = element.value;
       });

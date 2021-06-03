@@ -41,7 +41,7 @@
 
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="入库接收人">
-              <el-input  disabled v-model="form.store_name"></el-input>
+              <el-input disabled v-model="form.store_name"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
@@ -71,6 +71,7 @@
                 v-model="form.program_code"
                 placeholder="大纲编号"
                 clearable
+                @change="selectCode"
                 class="filter-item"
               >
                 <el-option
@@ -100,7 +101,7 @@
           </el-col> -->
         </el-row>
       </el-form>
-      <div class="tool-button">
+      <div class="tool-button" v-if="form.is_type == 0">
         <el-button @click="downLoad">下载检查单模版</el-button>
         <el-upload
           ref="upload"
@@ -115,19 +116,57 @@
         </el-upload>
         <!-- <el-button @click="upLoad">上传检查单</el-button> -->
       </div>
+      <div class="tool-button" v-if="form.is_type == 1 || form.is_type == 2">
+        <el-button @click="addNewLine">增加</el-button>
+      </div>
+      <el-table
+        v-if="form.is_type == 1 || form.is_type == 2"
+        :data="tableData"
+        border
+        highlight-current-row
+      >
+        <el-table-column key="id" prop="id" label="编号"></el-table-column>
+        <el-table-column
+          key="component_unique_id"
+          prop="component_unique_id"
+          label="试验件编号"
+        >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.component_unique_id"
+              placeholder=""
+              @change="checkComponent(scope.row.component_unique_id)"
+            ></el-input>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-main>
     <el-footer>
-      <el-button type="primary" @click="onSubmit">立即创建</el-button>
+      <el-button type="primary" @click="onSubmit" v-if="form.is_type == 0"
+        >立即创建</el-button
+      >
+      <el-button
+        type="primary"
+        @click="onSave"
+        v-if="form.is_type == 1 || form.is_type == 2"
+        >保存</el-button
+      >
       <el-button>取消</el-button>
     </el-footer>
   </el-container>
 </template>
 <script>
 import store from "../../store";
-import { parseTime } from "@/utils";
+import { parseTime, deleteArr } from "@/utils";
 import { addInstore } from "@/api/inStore";
 import { programsParameters } from "@/api/program";
 import { getTemFileId, getTemFile } from "@/api/file";
+import {
+  getAssignProcess,
+  putAssignProcess,
+  putProcessStatus,
+} from "@/api/process";
+import { checkComponent } from "@/api/component";
 import global_msg from "@/utils/global";
 import { uploadFile } from "@/api/file";
 const typeOptions = [
@@ -147,6 +186,24 @@ const typeOptions = [
 export default {
   data() {
     return {
+      tableData: [
+        {
+          id: 1,
+          component_unique_id: "",
+        },
+        {
+          id: 2,
+          component_unique_id: "",
+        },
+        {
+          id: 3,
+          component_unique_id: "",
+        },
+        {
+          id: 4,
+          component_unique_id: "",
+        },
+      ],
       check_form_id: "",
       check_form_url: "",
       proCodeOption: null,
@@ -155,7 +212,7 @@ export default {
       selections: null,
       onOption: null,
       form: {
-        is_type: "",
+        is_type: 0,
         in_date: parseTime(new Date(), "{y}{m}{d}"),
         program_code: "",
         order_number: "",
@@ -167,7 +224,6 @@ export default {
         create_name: "",
         store_name: store.getters.name,
         location: "",
-        check_form_id: "",
       },
       fileList: [],
       // 允许的文件类型
@@ -195,6 +251,92 @@ export default {
     this.getSelection();
   },
   methods: {
+    selectCode() {
+      var or = this.form["program_code"];
+
+      this.selections.forEach((element) => {
+        if (element.program_code == or) {
+          this.form["order_number"] = element.order_number;
+        }
+      });
+
+      console.log("change");
+    },
+    checkComponent(id) {
+      var data = {
+        component_unique_id: id,
+        is_type: this.form.is_type,
+        order_number: this.form.order_number,
+      };
+      checkComponent(data).then((response) => {
+        this.$message({
+          message: response.message,
+          type: "warning",
+        });
+      });
+    },
+    onSave() {
+      deleteArr(this.tableData, "component_unique_id", "");
+      // for (let i = 0, len = this.tableData.length; i < len; i++) {
+      //   console.log(this.tableData[i])
+      //   if (this.tableData[i]["component_unique_id"] == "" ) {
+      //     this.tableData.splice(i, 1);
+      //     i--;
+      //     len--;
+      //   }
+      // }
+      if (this.tableData.length !== parseInt(this.form.is_num)) {
+        this.$message.error("入库数量和填写数量不一致，请检查");
+        return;
+      }
+      // if(this.form.is_num !== this.tableData.length){
+      //   this.$message.error('入库数量和填写数量不一致，请检查')
+      //   return
+      // }
+      //直接审核通过
+      this.form["is_status"] = 1;
+      this.form["in_store_num"] = this.form.is_num;
+
+      this.tableData.forEach((e) => {
+        if (this.form.is_type == 1) {
+          e["component_status1"] = 6;
+        } else {
+          e["component_status1"] = 5;
+        }
+        e["component_status"] = 1; //确认入库
+        delete e["id"];
+      });
+      console.log(this.form);
+      console.log(this.tableData);
+      addInstore(this.form).then(() => {
+        putAssignProcess({
+          data: this.tableData,
+        }).then((respones) => {
+          console.log(respones);
+
+          this.$notify({
+            title: "Success",
+            message: "提交成功",
+            type: "success",
+          });
+        });
+        // this.dialogFormVisible = false;
+        this.$notify({
+          title: "Success",
+          message: "Created Successfully",
+          type: "success",
+        });
+        this.$router.push({
+          path: "/inStore",
+        });
+      });
+    },
+    addNewLine() {
+      this.tableData.push({
+        id: this.tableData.length + 1,
+        component_unique_id: "",
+      });
+    },
     checkFile() {
       var flag = true;
       var tip = "";
@@ -323,12 +465,12 @@ export default {
      */
     downLoad() {
       // this.saveFileName();
-          this.fileName = "检查单模板";
-          var url = this.check_form_url;
+      this.fileName = "检查单模板";
+      var url = this.check_form_url;
 
-          this.getBlob(url).then((blob) => {
-            this.saveAs(blob, this.fileName);
-          });
+      this.getBlob(url).then((blob) => {
+        this.saveAs(blob, this.fileName);
+      });
     },
 
     upLoad() {},
@@ -339,10 +481,10 @@ export default {
       });
     },
     onSubmit() {
-      // if (this.form.check_form_id == "") {
-      //   this.$message.error("请上传检查单");
-      //   return;
-      // }
+      if (!this.form.check_form_id) {
+        this.$message.error("请上传检查单");
+        return;
+      }
       //this.form.create_name = store.getters.name;
       //this.form.store_name = "" ? store.getters.name : this.form.store_name;
       this.is_num = parseInt(this.is_num);

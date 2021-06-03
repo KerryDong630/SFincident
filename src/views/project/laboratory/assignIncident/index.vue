@@ -177,6 +177,7 @@ export default {
     },
     loadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
+      console.log(sheet_id)
       this.fileName =
         this.form.order_number +
         "_" +
@@ -317,6 +318,7 @@ export default {
       getAssignProcess(this.process_id).then((response) => {
         console.log(response);
         this.form = response.data;
+        
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });
     },

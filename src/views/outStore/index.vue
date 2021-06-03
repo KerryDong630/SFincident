@@ -44,24 +44,24 @@
         </el-table-column>
         <el-table-column key="is_num" label="试验件数量" prop="is_num">
         </el-table-column>
-        <el-table-column key="in_store_num" label="出库数量" prop="in_store_num">
+        <el-table-column key="is_num" label="出库数量" prop="is_num">
         </el-table-column>
-        <el-table-column key="location" label="库位" prop="location">
+        <!-- <el-table-column key="location" label="库位" prop="location">
+        </el-table-column> -->
+        <el-table-column key="is_type" label="出库类型" prop="is_type">
         </el-table-column>
-        <el-table-column key="is_type" label="入库类型" prop="is_type">
+           <el-table-column key="is_type" label="出库接收人" prop="out_name">
         </el-table-column>
-           <el-table-column key="is_type" label="委托方" prop="is_type">
-        </el-table-column>
-        <el-table-column key="check_name" label="审核人" prop="check_name">
-        </el-table-column>
-        <el-table-column
+        <!-- <el-table-column key="check_name" label="审核人" prop="check_name">
+        </el-table-column> -->
+        <!-- <el-table-column
           key="check_time"
           label="审核时间"
           prop="check_time"
           sortable
         >
-        </el-table-column>
-        <el-table-column
+        </el-table-column> -->
+        <!-- <el-table-column
           key="is_status"
           label="审核状态"
           prop="is_status"
@@ -71,8 +71,8 @@
           <template slot-scope="scope">
             <i :class="getStatus(scope.row)" :style="{'color': getColor(scope.row.is_status)}" ></i>
           </template>
-        </el-table-column>
-        <el-table-column key="in_date" label="入库日期" prop="in_date" sortable>
+        </el-table-column> -->
+        <el-table-column key="in_date" label="出库日期" prop="out_date" sortable>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="250">
           <template slot-scope="{ row }">
@@ -144,7 +144,7 @@ export default {
 </script>
 
 <script>
-import { getInstoreList } from "@/api/inStore";
+import { getOutstoreList } from "@/api/inStore";
 import { loadCodeComponent } from "@/api/component";
 const lables = {
   pro_name: "项目名称",
@@ -405,7 +405,7 @@ export default {
     },
     getList() {
       this.listLoading = true;
-      getInstoreList().then((response) => {
+      getOutstoreList().then((response) => {
         this.list = response.data;
         this.handelData(this.list);
         this.getFilter(this.list);

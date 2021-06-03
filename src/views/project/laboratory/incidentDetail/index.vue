@@ -233,6 +233,7 @@ export default {
         .then(() => {
           console.log(row);
           row["component_status1"] = 3; //已完成
+          row['experiment_sheet_id'] = null;
           putAssignProcess({
             data: [row],
           }).then((respones) => {
