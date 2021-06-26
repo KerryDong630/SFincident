@@ -43,6 +43,13 @@ export function getInstore(id) {
     method: 'get',  
   })
 }
+export function getOutStore(id){
+  return requestdev({
+    url:"/outstore/"+id,
+    method:'get'
+  })
+}
+
 export function getConfirmInstore(order_number) {
   return requestdev({
     url: '/confirmInstore/' + order_number,

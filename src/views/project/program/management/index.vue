@@ -14,6 +14,7 @@
           @click="exportExecel"
           icon="el-icon-download"
         ></el-button>
+        <el-button type="primary" @click="toData">数据维护</el-button>
       </div>
       <el-table
         v-loading="listLoading"
@@ -23,7 +24,6 @@
         highlight-current-row
         style="width: 100%"
       >
-
         <el-table-column
           key="project_name"
           label="项目名称"
@@ -42,7 +42,7 @@
           key="order_number"
           label="委托单号"
           prop="order_number"
-          :filters=orderNumFilters
+          :filters="orderNumFilters"
           :filter-method="filterHandler"
         >
         </el-table-column>
@@ -54,11 +54,11 @@
         </el-table-column>
         <el-table-column key="sample_num" label="样品数量" prop="sample_num">
         </el-table-column>
-             <el-table-column key="w_sum" label="等待入库" prop="w_sum">
+        <el-table-column key="w_sum" label="等待入库" prop="w_sum">
         </el-table-column>
         <el-table-column key="in_store_num" label="已入库" prop="in_store_num">
         </el-table-column>
-   
+
         <el-table-column
           key="in_experiment"
           label="实验中"
@@ -81,18 +81,24 @@
         >
         </el-table-column>
         <el-table-column key="res_name" label="试验主管" prop="res_name">
+          <template slot-scope="scope">
+            {{ getUName(scope.row.res_name) }}
+          </template>
         </el-table-column>
         <el-table-column
           key="create_name"
           label="项目负责人"
           prop="create_name"
         >
+          <template slot-scope="scope">
+            {{ getUName(scope.row.create_name) }}
+          </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
             <el-button
               style="margin-left: 0px"
-              v-if="row.order_number == null "
+              v-if="row.order_number == null"
               type="text"
               size="small"
               @click="createProgram(row)"
@@ -159,6 +165,7 @@
 //import myTable from "../table/simpleTable";
 //import ComplexTable from "@/views/table/complex-table";
 import { getProgramsList } from "@/api/program";
+import { getUsersList } from "@/api/user";
 
 const statusTypeOptions = [
   { display_name: "未创建任务", key: "0" },
@@ -167,14 +174,14 @@ const statusTypeOptions = [
   { display_name: "完成", key: "3" },
 ];
 const lables = {
-  project_id:"项目ID",
-  program_id:"试验大纲id",
+  project_id: "项目ID",
+  program_id: "试验大纲id",
   project_name: "项目名称",
-  pro_name:"项目名称",
+  pro_name: "项目名称",
   company: "委托公司名称",
   task_id: "任务书编码",
-  order_id:"委托书id",
-  pro_id:"项目id",
+  order_id: "委托书id",
+  pro_id: "项目id",
   program_code: "试验大纲编码",
   task_name_book: "试验任务书名称",
   order_time: "委托单时间",
@@ -201,8 +208,7 @@ const lables = {
   u_email: "邮箱",
   address: "详细地址",
   contact: "联系人",
-  task_form_id:"任务书id",
-
+  task_form_id: "任务书id",
 };
 const showColumns = [
   "id",
@@ -231,6 +237,7 @@ export default {
       orderNumFilters: [],
       pvData: {},
       showColumns,
+      users: {},
       statusTypeOptions,
       lables,
       listLoading: true,
@@ -242,15 +249,30 @@ export default {
     };
   },
   created() {
+    this.getUsersList();
     this.getList();
   },
   methods: {
-    refresh(){
+    toData() {
+      this.$router.push({ path: "/alertata" });
+    },
+    getUName(user) {
+      return this.users[user];
+    },
+    getUsersList() {
+      getUsersList().then((response) => {
+        console.log(response);
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+        console.log("users");
+        console.log(this.users);
+      });
+    },
+    refresh() {
       this.getList();
     },
-    exportExecel(){
-
-    },
+    exportExecel() {},
     filterHandler(value, row, column) {
       const property = column["property"];
       return row[property] === value;
@@ -265,7 +287,7 @@ export default {
         query: { order_number: order_number },
       });
     },
-    createProgram(row){
+    createProgram(row) {
       this.$router.push({
         path: "/newpro",
         query: { pro_name: row.project_name },

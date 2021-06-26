@@ -30,6 +30,13 @@ export function loadCodeComponent(id) {
   })
 }
 
+export function incidentComponents(id){
+  return requestdev({
+    url:'incidentComponents/'+id,
+    method:'get'
+  })
+}
+
 export function scanCode(data) {
   return requestdev({
     url: '/scanCode',

@@ -33,7 +33,6 @@
           >
             <el-form-item :label="item.name" :required="item.force">
               <el-input
-                
                 v-model="item.value"
                 v-if="item.key !== 'order_time'"
               ></el-input>
@@ -147,13 +146,17 @@
 </template>
 <script>
 import { strRebuild, lastSubstring } from "@/utils/index";
-import { uploadFile } from "@/api/file";
+import { uploadFile, getTemFileId } from "@/api/file";
 import { addProgram } from "@/api/program";
 import { getSelectProject } from "@/api/project";
+import global_msg from "@/utils/global";
 import store from "../../../../store";
 export default {
   data() {
     return {
+      fileName: "",
+      order_id: "",
+      order_url: "",
       formid: "",
       select: null,
       fileList: [],
@@ -242,25 +245,68 @@ export default {
             force: false,
             value: "",
             key: "remarks",
-          }
+          },
         ],
       },
     };
   },
+  watch: {
+    order_id() {
+      this.order_url = global_msg.host + "/getFile/" + this.order_id;
+      console.log(this.order_url);
+    },
+  },
   created() {
+    this.getUrl();
     getSelectProject().then((response) => {
       this.select = response.data;
       console.log(response);
     });
   },
-   mounted: function () {
+  mounted: function () {
     if (this.$route.query.pro_name) {
       this.form.pro_name = this.$route.query.pro_name;
     }
     //this.getList(this.order_number);
   },
   methods: {
-    downLoad(){},
+    downLoad() {
+      this.fileName = "委托单模板";
+      var url = this.order_url;
+
+      this.getBlob(url).then((blob) => {
+        this.saveAs(blob, this.fileName);
+      });
+    },
+    saveAs(blob, filename) {
+      if (window.navigator.msSaveOrOpenBlob) {
+        navigator.msSaveBlob(blob, filename);
+      } else {
+        const link = document.createElement("a");
+        const body = document.querySelector("body");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        // fix Firefox
+        link.style.display = "none";
+        body.appendChild(link);
+        link.click();
+        body.removeChild(link);
+        window.URL.revokeObjectURL(link.href);
+      }
+    },
+    getBlob(url) {
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.responseType = "blob";
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            resolve(xhr.response);
+          }
+        };
+        xhr.send();
+      });
+    },
     checkFile() {
       var flag = true;
       var tip = "";
@@ -285,6 +331,15 @@ export default {
     },
     getFileId(value) {
       this.formid = value;
+    },
+    getUrl() {
+      //委托书
+      getTemFileId(1).then((response) => {
+        this.order_id = response.f_id;
+        // getTemFile(f_id).then(response=>{
+        //   console.log(response)
+        // })
+      });
     },
     submitUpload() {
       var files = this.$refs.upload.uploadFiles;
@@ -347,9 +402,7 @@ export default {
         });
     },
     onSubmit() {
-      if (
-        !this.form.order_id
-      ) {
+      if (!this.form.order_id) {
         this.$message.error("请上传委托书再提交！");
         return;
       }

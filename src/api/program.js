@@ -39,4 +39,10 @@ export function putProject(data) {
     data
   })
 }
-
+export function postAlter(data) {
+  return requestdev({
+    url: '/alterDataList',
+    method: 'post',
+    data
+  })
+}

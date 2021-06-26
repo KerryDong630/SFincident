@@ -4,7 +4,10 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            <svg-icon
+              icon-class="incidentprocess"
+              class-name="card-panel-icon"
+            />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">处理中工单</div>
@@ -20,7 +23,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="lock" class-name="card-panel-icon" />
+            <svg-icon icon-class="unprocess" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">待处理工单</div>
@@ -52,7 +55,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+            <svg-icon icon-class="create" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">创建的工单</div>
@@ -66,7 +69,7 @@
         </div>
       </el-col>
     </el-row>
-  
+
     <div class="tool-button">
       <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
     </div>
@@ -78,8 +81,7 @@
       style="width: 100%"
       @sort-change="sortChange"
     >
-     
-      <el-table-column
+      <!-- <el-table-column
         :key="col.prop"
         :label="col.label"
         :prop="col.prop"
@@ -88,6 +90,57 @@
         sortable
         v-for="col in tableColumnList"
       >
+
+      </el-table-column> -->
+      <el-table-column key="incident_id" label="工单编号" prop="incident_id">
+      </el-table-column>
+      <el-table-column key="create_name" label="工单发起人" prop="create_name">
+        <template slot-scope="scope">
+          {{ getUName(scope.row.create_name) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        key="finish_time"
+        label="预计完成时间"
+        prop="finish_time"
+      >
+      </el-table-column>
+      <el-table-column key="process_name" label="当前环节" prop="process_name">
+      </el-table-column>
+      <el-table-column key="create_at" label="创建时间" prop="create_at">
+      </el-table-column>
+      <el-table-column key="experimenter" label="试验员" prop="experimenter">
+        <template slot-scope="scope">
+          {{ getUName(scope.row.experimenter) }}
+        </template>
+      </el-table-column>
+      <el-table-column key="start_time_d" label="开始时间" prop="start_time_d">
+      </el-table-column>
+      <el-table-column key="end_time_d" label="结束时间" prop="end_time_d">
+      </el-table-column>
+      <el-table-column
+        key="process_status"
+        label="状态"
+        :filters="statusFilters"
+        :filter-method="filterHandler"
+        prop="process_status"
+      >
+        <template slot-scope="scope">
+          <label :style="{ color: getColor(scope.row.process_status) }">{{
+            getStatus(scope.row.process_status)
+          }}</label>
+        </template>
+      </el-table-column>
+      <el-table-column key="order_number" label="委托单号" prop="order_number">
+      </el-table-column>
+      <el-table-column key="pro_name" label="项目名称" prop="pro_name">
+      </el-table-column>
+      <el-table-column fixed="right" label="操作" width="120">
+        <template slot-scope="{ row }">
+          <el-button type="text" size="small" @click="download(row)">
+            下载试验件
+          </el-button>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -96,6 +149,9 @@
 <script>
 import CountTo from "vue-count-to";
 import { incidentOverview, incidentList } from "@/api/incident";
+import { getUsersList } from "@/api/user";
+import { incidentComponents } from "@/api/component";
+
 const lables = {
   pro_name: "项目名称",
   incident_id: "工单编号",
@@ -104,7 +160,7 @@ const lables = {
   process_name: "当前环节",
   experimenter: "试验员",
   process_status: "状态",
-  order_number:"委托单号",
+  order_number: "委托单号",
   create_at: "创建时间",
   start_time_d: "开始时间",
   end_time_d: "结束时间",
@@ -112,23 +168,23 @@ const lables = {
 const statusFilters = [
   {
     text: "已创建",
-    value: "已创建",
+    value: 0,
   },
   {
     text: "待分配",
-    value: "待分配",
+    value: 1,
   },
   {
     text: "已分配",
-    value: "已分配",
+    value: 2,
   },
   {
     text: "实验中",
-    value: "实验中",
+    value: 3,
   },
   {
     text: "已完成",
-    value: "已完成",
+    value: 4,
   },
 ];
 const status = {
@@ -143,6 +199,7 @@ export default {
     CountTo,
   },
   created() {
+    this.getUsersList();
     this.getOverview();
     this.getIncidet();
   },
@@ -155,6 +212,10 @@ export default {
       overviewData: {},
       tableColumnList: [],
       list: null,
+      downloadLoading: false,
+      users: {},
+      autoWidth: true,
+      bookType: "xlsx",
       listQuery: {
         page: 1,
         limit: 20,
@@ -166,6 +227,87 @@ export default {
     };
   },
   methods: {
+    formatJson(filterVal, jsonData) {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else {
+            return v[j];
+          }
+        })
+      );
+    },
+    exportExcel(tHeader, list) {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then((excel) => {
+        //const tHeader = this.tableHeader;
+        const filterVal = tHeader;
+        //const list = this.tableData;
+        const data = this.formatJson(filterVal, list);
+        console.log(tHeader);
+        console.log(data);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "试验件编码",
+          autoWidth: this.autoWidth,
+          bookType: this.bookType,
+        });
+        this.$message({
+          type: "success",
+          message: "导出成功!",
+        });
+        this.downloadLoading = false;
+      });
+    },
+    download(row) {
+      var incident_id = row.incident_id;
+      var table = [];
+      var tableArr = ["编号", "试验件编号"];
+      incidentComponents(incident_id).then((res) => {
+        res.data.forEach((el, index) => {
+          table.push({
+            编号: index + 1,
+            试验件编号: el.component_unique_id,
+          });
+        });
+        this.downloadLoading = true;
+        import("@/vendor/Export2Excel").then((excel) => {
+          const tHeader = tableArr;
+          const filterVal = tableArr;
+          //const list = this.tableData;
+          const data = this.formatJson(filterVal, table);
+
+          console.log(data);
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: "试验件编码",
+            autoWidth: this.autoWidth,
+            bookType: this.bookType,
+          });
+          this.$message({
+            type: "success",
+            message: "导出成功!",
+          });
+          this.downloadLoading = false;
+        });
+      });
+    },
+    getUName(user) {
+      return this.users[user];
+    },
+    getUsersList() {
+      getUsersList().then((response) => {
+        console.log(response);
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+        console.log("users");
+        console.log(this.users);
+      });
+    },
     add() {
       this.$router.push({
         path: "/newProincident",
@@ -180,21 +322,20 @@ export default {
         return "";
       }
     },
-     getFilter(list) {
+    getFilter(list) {
       list.forEach((row) => {
         var resultPro = this.proNameFilters.some((item) => {
           if (item.text == row.pro_name) {
             return true;
           }
         });
-         
+
         if (!resultPro) {
           this.proNameFilters.push({
             text: row.pro_name,
             value: row.pro_name,
           });
         }
-      
       });
     },
     getId(index) {
@@ -211,23 +352,45 @@ export default {
       const property = column["property"];
       return row[property] === value;
     },
-    getStatus() {
-      this.list.forEach((element) => {
-        for (var k in element) {
-          if (k == "process_status") {
-            element[k] = this.status[element[k]];
-          }
-        }
-      });
+    getColor(status) {
+      if (status == 2) {
+        return "#409EFF";
+      } else if (status == 1) {
+        return "#F56C6C";
+      } else if (status == 0) {
+        return "#909399";
+      } else if (status == 3) {
+        return "#E6A23C";
+      } else if (status == 4) {
+        return "#67C23A";
+      }
+    },
+    getStatus(status) {
+      return this.status[status];
+      // this.list.forEach((element) => {
+      //   for (var k in element) {
+      //     if (k == "process_status") {
+      //       element[k] = this.status[element[k]];
+      //     }
+      //   }
+      // });
+
+      // this.list.forEach((element) => {
+      //   for (var k in element) {
+      //     if (k == "process_status") {
+      //       element[k] = this.status[element[k]];
+      //     }
+      //   }
+      // });
     },
     getIncidet() {
       incidentList().then((response) => {
         console.log(response);
         this.list = response.data;
-        this.getStatus();
+        //this.getStatus();
 
         this.getColumns(this.list);
-        this.getFilter(this.list)
+        this.getFilter(this.list);
       });
     },
     getColumns(list) {

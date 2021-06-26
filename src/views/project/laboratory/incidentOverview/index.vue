@@ -4,7 +4,10 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            <svg-icon
+              icon-class="incidentprocess"
+              class-name="card-panel-icon"
+            />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">处理中工序</div>
@@ -20,7 +23,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="lock" class-name="card-panel-icon" />
+            <svg-icon icon-class="unprocess" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">待分配工序</div>
@@ -52,7 +55,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+            <svg-icon icon-class="assign" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">派给我的工序</div>
@@ -106,6 +109,9 @@
         prop="experimenter"
         sortable
       >
+        <template slot-scope="scope">
+          {{ getUName(scope.row.experimenter) }}
+        </template>
       </el-table-column>
       <el-table-column
         key="incident_id"
@@ -120,6 +126,9 @@
         prop="create_name"
         sortable
       >
+        <template slot-scope="scope">
+          {{ getUName(scope.row.create_name) }}
+        </template>
       </el-table-column>
       <el-table-column
         key="start_time_d"
@@ -179,6 +188,8 @@
 import CountTo from "vue-count-to";
 import { processOverview } from "@/api/process";
 import { getProcess } from "@/api/process";
+import { getUsersList } from "@/api/user";
+
 const lables = {
   incident_id: "工单编号",
   create_name: "工单发起人",
@@ -225,6 +236,7 @@ export default {
     CountTo,
   },
   created() {
+    this.getUsersList();
     this.getOverview();
     this.getProcess();
   },
@@ -236,6 +248,7 @@ export default {
       status,
       overviewData: {},
       tableColumnList: [],
+      users: {},
       list: null,
       listQuery: {
         page: 1,
@@ -248,6 +261,17 @@ export default {
     };
   },
   methods: {
+    getUName(user) {
+      return this.users[user];
+    },
+    getUsersList() {
+      getUsersList().then((response) => {
+        console.log(response);
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+      });
+    },
     getFilter(list) {
       list.forEach((row) => {
         var resultPro = this.proNameFilters.some((item) => {
@@ -266,8 +290,8 @@ export default {
     },
     filterHandler(value, row, column) {
       const property = column["property"];
-      console.log(row[property])
-      console.log(value)
+      console.log(row[property]);
+      console.log(value);
       return row[property] === value;
     },
     getId(index) {

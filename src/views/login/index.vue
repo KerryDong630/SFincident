@@ -10,7 +10,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">中国商飞北研中心</h3>
+        <h3 class="title">中国XXXX中心</h3>
       </div>
 
       <el-form-item prop="username">
@@ -69,6 +69,12 @@
           class="changeRouter"
           >更改密码
         </span>
+        
+      </div>
+      <div>
+        <span 
+          >备案/许可证编号为：沪ICP备2021016575号</span
+        >
       </div>
     </el-form>
 
@@ -147,6 +153,7 @@
 import { validUsername } from "@/utils/validate";
 import { login, logout, getInfo } from "@/api/user";
 import { changeUser } from "@/api/user";
+import { Message } from 'element-ui';
 export default {
   name: "Login",
   data() {
@@ -283,6 +290,7 @@ export default {
                 this.loading = false;
               });
           } else {
+            //Message.error('用户名密码错误')
             console.log("登录错误");
             return false;
           }

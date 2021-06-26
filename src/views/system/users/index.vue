@@ -89,9 +89,9 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
-            <el-button type="text" size="small" @click="updateRole(row)">
+            <!-- <el-button type="text" size="small" @click="updateRole(row)">
               编辑
-            </el-button>
+            </el-button> -->
             <el-button type="text" size="small" @click="confirmDelete(row)">
               删除
             </el-button>
@@ -116,6 +116,16 @@ const roles = [
   { name: "基础资料", key: "information" },
   { name: "用户管理", key: "admin" },
 ];
+const auth = {
+  warehouse:"仓库",
+  program:'任务',
+  project:'项目',
+  experimenter:'试验员',
+  laboratory:'实验室',
+  equipment:'设备管理',
+  information:'基础资料',
+  admin:'用户管理'
+}
 //import myTable from "../table/simpleTable";
 //import ComplexTable from "@/views/table/complex-table";
 //import { getUsersList } from "@/api/user";
@@ -152,6 +162,8 @@ export default {
       list: null,
       pvData: {},
       statusTypeOptions,
+      roles,
+      auth,
       listLoading: true,
       listQuery: {
         projectId: undefined,
@@ -272,7 +284,6 @@ export default {
         console.log(v);
         if(v in showLable ){
 
-       
         this.tableColumnList.push({
           prop: v,
           label: this.showLable[v] || v,
@@ -281,13 +292,24 @@ export default {
       }
       console.log(this.tableColumnList);
     },
+    showAuth(str){
+        var arr = str.split(',');
+        var narr = arr.map(ele=>{
+          return this.auth[ele]
+        });
+        return narr.join(',')
+    },
     getList() {
       this.listLoading = true;
       this.tableColumnList = [];
       getUsersList().then((response) => {
         console.log(response);
         this.listLoading = false;
+        response.data.forEach(ele=>{
+          ele.u_authority = this.showAuth(ele.u_authority)
+        })
         this.list = response.data;
+
         this.getTableColumnList(this.list);
         this.getFilters(this.list);
         console.log(response);

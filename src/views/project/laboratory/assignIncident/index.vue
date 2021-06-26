@@ -56,6 +56,7 @@
           :description="'当前工序负责人:' + pre.process_owner"
         ></el-step>
       </el-steps>
+      <el-checkbox v-model="checked" style="margin-top: 20px">是否全部分配</el-checkbox>
       <el-table
         stripe
         border
@@ -79,7 +80,7 @@
           prop="component_status1"
           key="component_status1"
         >
-           <template slot-scope="scope">
+          <template slot-scope="scope">
             {{ getStatus(scope.row) }}
           </template>
         </el-table-column>
@@ -89,7 +90,7 @@
               v-model="scope.row.experimenter"
               placeholder="实验员"
               clearable
-              :disabled = "scope.row.component_status1 == 5"
+              :disabled="scope.row.component_status1 == 5"
               class="filter-item"
             >
               <el-option
@@ -106,7 +107,9 @@
             </el-select>
           </template>
         </el-table-column>
+        
         <el-table-column fixed="right" label="操作" width="150">
+          
           <template slot-scope="scope">
             <el-button
               type="text"
@@ -129,11 +132,11 @@
 <script>
 const componentStatus = {
   0: "待分配",
-  1: "已分配",
+  1: "已分配工单",
   2: "实验中",
   3: "实验结束",
   4: "待审核",
-  5:"报废"
+  5: "报废",
 };
 import { getUsersList } from "@/api/user";
 import global_msg from "@/utils/global";
@@ -150,6 +153,7 @@ export default {
       program_form_url: "",
       form_url: "",
       fileName: "",
+      checked:false,
       componentStatus,
       current_step: null,
       process_id: null,
@@ -172,12 +176,12 @@ export default {
     this.getUsersList();
   },
   methods: {
-       getStatus: function (row) {
+    getStatus: function (row) {
       return componentStatus[row.component_status1];
     },
     loadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
-      console.log(sheet_id)
+      console.log(sheet_id);
       this.fileName =
         this.form.order_number +
         "_" +
@@ -261,7 +265,30 @@ export default {
           });
         });
     },
+    mutipleCheck(){
+      if(this.checked){
+          //若批量分配
+          var experimenter = this.form.componentlist[0]['experimenter']
+          console.log(experimenter)
+          this.form.componentlist.forEach(ele=>{
+            if(ele.component_status1 !== 5){   //若试验件状态不为报废
+              ele['experimenter'] = experimenter;
+
+            }
+          });
+
+      }
+    },
     checkOnSubmit() {
+     this.mutipleCheck();
+      for (var i = 0; i < this.form.componentlist.length; i++) {
+        var element = this.form.componentlist[i];
+        console.log(element)
+        if ((!element["experimenter"] || element["experimenter"].trim() == "") && element.component_status1 !== 5) {
+          this.$message.error("有未被分配试验员的试验件！请检查");
+          return;
+        }
+      }
       this.open(this.onSubmit);
     },
     onSubmit() {
@@ -318,7 +345,7 @@ export default {
       getAssignProcess(this.process_id).then((response) => {
         console.log(response);
         this.form = response.data;
-        
+
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });
     },

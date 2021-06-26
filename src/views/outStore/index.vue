@@ -28,6 +28,13 @@
         </el-table-column> -->
         <el-table-column
           key="pro_name"
+          label="编号"
+       
+          prop="id"
+        >
+        </el-table-column>
+        <el-table-column
+          key="pro_name"
           label="项目名称"
           :filters="proNameFilters"
           :filter-method="filterHandler"
@@ -50,7 +57,7 @@
         </el-table-column> -->
         <el-table-column key="is_type" label="出库类型" prop="is_type">
         </el-table-column>
-           <el-table-column key="is_type" label="出库接收人" prop="out_name">
+           <el-table-column key="out_name" label="出库接收人" prop="out_name">
         </el-table-column>
         <!-- <el-table-column key="check_name" label="审核人" prop="check_name">
         </el-table-column> -->
@@ -76,33 +83,18 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="250">
           <template slot-scope="{ row }">
-            <el-tooltip content="查看" placement="top">
-              <el-button
-                size="mini"
-                type="primary"
-                @click="showDetail(row)"
-                icon="el-icon-tickets"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="填写试验件编码" placement="top">
-              <el-button
-                size="mini"
-                type="primary"
-                v-if="row.is_status == 1 && row.in_store_num !== row.is_num"
-                @click="editCode(row)"
-                icon="el-icon-edit"
-              ></el-button>
-            </el-tooltip>
+           
+           
             <el-tooltip content="扫码入库" placement="top">
               <el-button
                 size="mini"
                 type="primary"
-                v-if="row.is_status == 1 && row.in_store_num !== row.is_num"
+                v-if="row.is_type == '待测样品'"
                 @click="scanCode(row)"
                 icon="el-icon-help"
               ></el-button>
             </el-tooltip>
-            <el-tooltip content="下载试验件编码" placement="top">
+            <!-- <el-tooltip content="下载试验件编码" placement="top">
               <el-button
                 size="mini"
                 type="primary"
@@ -110,7 +102,7 @@
                 @click="downLoadCode(row)"
                 icon="el-icon-download"
               ></el-button>
-            </el-tooltip>
+            </el-tooltip> -->
             <!-- <el-button type="text" size="small" @click="showDetail(row)">
               查看
             </el-button> -->
@@ -241,7 +233,7 @@ export default {
     },
     scanCode(row) {
       this.$router.push({
-        path: "/scanInStore",
+        path: "/newOutStore",
         query: {
           id: row.id,
         },

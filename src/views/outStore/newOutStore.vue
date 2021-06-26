@@ -114,6 +114,10 @@
 <script>
 const typeOptions = [
   {
+    value: "待测样品",
+    key: 0,
+  },
+  {
     value: "已完成样品",
     key: 1,
   },
@@ -124,7 +128,7 @@ const typeOptions = [
 ];
 import store from "../../store";
 import { parseTime } from "@/utils";
-import { addOutstore } from "@/api/inStore";
+import { addOutstore, getOutStore } from "@/api/inStore";
 import { programsParameters } from "@/api/program";
 import { getTemFileId, getTemFile } from "@/api/file";
 import {
@@ -155,6 +159,7 @@ export default {
           component_unique_id: "",
         },
       ],
+      id: null,
       selections: null,
       onOption: null,
       form: {
@@ -169,10 +174,21 @@ export default {
       },
     };
   },
+  mounted: function () {
+    if (this.$route.query.id) {
+      this.id = this.$route.query.id;
+      this.getOutStore(this.id);
+    }
+  },
   created() {
     this.getSelection();
   },
   methods: {
+    getOutStore(id) {
+      getOutStore(id).then((res) => {
+        this.form = res;
+      });
+    },
     selectOrder() {
       var or = this.form["order_number"];
 
@@ -198,7 +214,11 @@ export default {
         component_unique_id: id,
         is_type: this.form.is_type,
         order_number: this.form.order_number,
+        conidtion:0 //出库操作
       };
+      if(this.id){
+        data['out_id'] = this.id
+      }
       checkComponent(data).then((response) => {
         this.$message({
           message: response.message,
@@ -214,17 +234,12 @@ export default {
     },
     onSubmit() {
       //试验件出库
-      
-      this.tableData.forEach((e) => {
-        if (this.form.is_type == 1) {
-          e["component_status1"] = 6;
-        } else {
-          e["component_status1"] = 5;
-        }
-        e["component_status"] = 2; //确认出库
-        delete e["id"];
-      });
-      addOutstore(this.form).then((response) => {
+      if (this.id) {
+        this.tableData.forEach((e) => {
+          e["component_status"] = 2; //确认出库
+          e["component_status1"] = 1; //已分配
+          delete e["id"];
+        });
         putAssignProcess({
           data: this.tableData,
         }).then((respones) => {
@@ -234,9 +249,38 @@ export default {
             message: "提交成功",
             type: "success",
           });
-           this.$router.push({
-          path: "/outStore",
+          this.$router.push({
+            path: "/outStore",
+          });
         });
+        return;
+      }
+      addOutstore(this.form).then((response) => {
+        var out_id = response;
+        this.tableData.forEach((e) => {
+          e["outstore_id"] = out_id;
+          if (this.form.is_type == 1) {
+            e["component_status1"] = 6;
+          } else if (this.form.is_type == 2) {
+            e["component_status1"] = 5;
+          } else {
+            e["component_status1"] = 1; //已分配
+          }
+          e["component_status"] = 2; //确认出库
+          delete e["id"];
+        });
+        putAssignProcess({
+          data: this.tableData,
+        }).then((respones) => {
+          console.log(respones);
+          this.$notify({
+            title: "Success",
+            message: "提交成功",
+            type: "success",
+          });
+          this.$router.push({
+            path: "/outStore",
+          });
         });
       });
 

@@ -12,7 +12,7 @@ const service = axios.create({
  // 'http://127.0.0.1:5000',
   //'http://kerrytest.natapp1.cc', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 500000 // request timeout
 })
 
 // request interceptor
@@ -30,7 +30,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    //console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -49,7 +49,7 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.log(res)
+    console.log(response)
     // if the custom code is not 20000, it is judged as an error.
     // if (res.code !== 20000) {
     //   Message({
@@ -78,13 +78,16 @@ service.interceptors.response.use(
     //}
   },
   error => {
-    console.log(JSON.stringify(error))
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+   
+   var message = error.response.data.message
+    console.log((error.response.data.message)) // for debug
+    if(message){
+      Message({
+        message: message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+    }
     return Promise.reject(error)
   }
 )

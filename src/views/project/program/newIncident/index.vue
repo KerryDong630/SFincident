@@ -292,6 +292,8 @@ import { addIncident } from "@/api/incident";
 import { uploadFile } from "@/api/file";
 import { getTemFileId, getTemFile } from "@/api/file";
 import global_msg from "@/utils/global";
+import { parseTime } from "@/utils";
+import { addOutstore } from "@/api/inStore";
 
 //import { getUsersList } from "@/api/user";
 
@@ -439,9 +441,7 @@ export default {
         window.URL.revokeObjectURL(link.href);
       }
     },
-    getTemplateFile(){
-
-    },
+    getTemplateFile() {},
     downLoad(row) {
       var process = row.process_name;
       var type = this.form.experi_type; //工单类型
@@ -547,7 +547,15 @@ export default {
       console.log(index);
     },
     getRange(row, index) {
-      var range = row.end_time_d - row.start_time_d;
+      console.log(row.start_time_d)
+      var d1 = row.start_time_d;
+      var d2 = row.end_time_d;
+      
+      var stime = new Date(d1.slice(4,6) + "-"+d1.slice(6,8)+'-'+d1.slice(0,4));
+      var etime = new Date(d2.slice(4,6) + "-"+d2.slice(6,8)+'-'+d2.slice(0,4));
+      var range =  parseInt(Math.abs(etime  -  stime)  /  1000  /  60  /  60  /24)
+      //var range = parseInt(total / (24*60*60))
+      //var range = row.end_time_d - row.start_time_d;
       if (this.listTable[index + 1]) {
         this.listTable[index + 1].start_time_d = row.end_time_d;
       }
@@ -588,20 +596,18 @@ export default {
       });
 
       console.log(this.listTable);
-      this.listTable.forEach(element=>{
-      var type = this.form.experi_type; //工单类型
-      var step = element.step_number; //工序步骤
-      var fileType = "5"; //实验模板为5
-      var pKey = fileType + type + step;
+      this.listTable.forEach((element) => {
+        var type = this.form.experi_type; //工单类型
+        var step = element.step_number; //工序步骤
+        var fileType = "5"; //实验模板为5
+        var pKey = fileType + type + step;
 
-      getTemFileId(pKey).then((response) => {
-   
-        this.templateFile[pKey] = response.f_id;
-
+        getTemFileId(pKey).then((response) => {
+          this.templateFile[pKey] = response.f_id;
+        });
+        console.log(this.templateFile);
       });
-       console.log(this.templateFile)
-      })
-     
+
       //this.getTableColumnList(this.listTable);
     },
     getTemplateEx() {
@@ -624,12 +630,36 @@ export default {
       console.log(val);
     },
     getComponent() {
-      addExComponent(this.form.order_number).then((response) => {
-        console.log(response);
-        this.componentList = response.data;
+      const loading = this.$loading({
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+      addExComponent(this.form.order_number)
+        .then((response) => {
+          console.log(response);
+          this.componentList = response.data;
+          loading.close();
+        })
+        .catch((err) => {
+          console.log(err);
+          loading.close();
+        });
+    },
+    createOutStore() {
+      var form = {
+        is_type: 0, //待测样品
+        out_date: parseTime(new Date(), "{y}{m}{d}"),
+        order_number: this.form.order_number,
+        is_num: this.testList.length,
+      };
+      addOutstore(form).then((res) => {
+        var id = res;
+        this.submitIncident(id);
       });
     },
-    onSubmit() {
+    submitIncident(id) {
       this.listTable.forEach((element) => {
         if (!element.experiment_sheet_id) {
           var type = this.form.experi_type; //工单类型
@@ -637,8 +667,10 @@ export default {
           var fileType = "5"; //实验模板为5
           var pKey = fileType + type + step;
           element.experiment_sheet_id = this.templateFile[pKey];
-        
         }
+      });
+      this.testList.forEach((ele) => {
+        ele["outstore_id"] = id;
       });
       this.form["process_list"] = this.listTable;
       this.form["component_list"] = this.testList;
@@ -654,6 +686,9 @@ export default {
           path: "/incident",
         });
       });
+    },
+    onSubmit() {
+      this.createOutStore();
     },
     add() {
       this.dialogPvVisible = true;

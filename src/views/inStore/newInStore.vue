@@ -45,7 +45,7 @@
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
-            <el-form-item label="委托单编号">
+            <el-form-item label="委托单编号" required="true">
               <br />
               <el-select
                 v-model="form.order_number"
@@ -214,8 +214,8 @@ export default {
       form: {
         is_type: 0,
         in_date: parseTime(new Date(), "{y}{m}{d}"),
-        program_code: "",
-        order_number: "",
+        // program_code: "",
+        // order_number: "",
         is_status: 0,
         is_num: "",
         in_store_num: 0,

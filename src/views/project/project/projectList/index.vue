@@ -3,7 +3,7 @@
     <el-header class="app-header"> 项目管理 </el-header>
     <el-main>
       <div class="tool-button">
-       
+        <el-button type="primary"  @click="toData">数据维护</el-button>
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
           type="primary"
@@ -19,47 +19,43 @@
         highlight-current-row
         style="width: 100%"
       >
-        <!-- <el-table-column key="id" label="编号" prop="id">
-          <template slot-scope="scope">
-            {{ getId(scope.$index) }}
-          </template>
-        </el-table-column> -->
-        <el-table-column
-          key="id"
-          label="项目ID"
-          prop="id"
-          sortable
-        >
+        <el-table-column key="id" label="项目ID" prop="id" sortable>
         </el-table-column>
         <el-table-column
           key="create_name"
           label="项目负责人"
           prop="create_name"
         >
+          <template slot-scope="scope">
+            {{ getUName(scope.row.create_name) }}
+          </template>
         </el-table-column>
-           <el-table-column
+        <el-table-column
           key="finish_time"
           label="项目预计结束时间"
           prop="finish_time"
           sortable
         >
         </el-table-column>
-           <el-table-column
+        <el-table-column
           key="create_time"
           label="项目创建时间"
           prop="create_time"
           sortable
         >
         </el-table-column>
-          <el-table-column
+        <el-table-column
           key="res_name"
           label="试验主管"
           prop="res_name"
           :filters="resFilters"
           :filter-method="filterHandler"
         >
+          <template slot-scope="scope">
+            {{ getUName(scope.row.res_name) }}
+          </template>
         </el-table-column>
-         <el-table-column
+        <el-table-column
           key="pro_name"
           label="项目名称"
           prop="pro_name"
@@ -79,14 +75,14 @@
         </el-table-column> -->
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
-            <el-button
+            <!-- <el-button
               v-if="row.status !== 0"
               type="text"
               size="small"
               @click="showDetail(row)"
             >
               查看
-            </el-button>
+            </el-button> -->
             <el-button type="text" size="small" @click="update(row)">
               编辑
             </el-button>
@@ -122,6 +118,7 @@
 
 <script>
 import { getProjectsList, getProject, putProject } from "@/api/project";
+import { getUsersList } from "@/api/user";
 const statusTypeOptions = [
   { display_name: "未创建任务", key: "0" },
   { display_name: "已创建任务", key: "1" },
@@ -165,6 +162,7 @@ export default {
       resFilters: [],
       list: null,
       pvData: [],
+      users: {},
       statusTypeOptions,
       listLoading: true,
       listQuery: {
@@ -175,9 +173,21 @@ export default {
     };
   },
   created() {
+    this.getUsersList();
     this.getList();
   },
   methods: {
+    getUName(user) {
+      return this.users[user];
+    },
+    getUsersList() {
+      getUsersList().then((response) => {
+        console.log(response);
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+      });
+    },
     getId(index) {
       return index + 1;
     },
@@ -185,7 +195,6 @@ export default {
       this.getList();
     },
     filterHandler(value, row, column) {
-    
       const property = column["property"];
       return row[property] === value;
     },
@@ -259,7 +268,7 @@ export default {
             return true;
           }
         });
-         var resultRes = this.resFilters.some((item) => {
+        var resultRes = this.resFilters.some((item) => {
           if (item.text == row.res_name) {
             return true;
           }
@@ -280,6 +289,9 @@ export default {
     },
     add() {
       this.$router.push({ path: "/newPoject" });
+    },
+    toData(){
+       this.$router.push({ path: "/pieData" });
     },
     getTableColumnList(list) {
       this.tableColumnList = [];

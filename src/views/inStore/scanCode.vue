@@ -46,7 +46,7 @@
 
 <script>
 import UploadExcelComponent from "@/components/UploadExcel/index.vue";
-import { deepCopy,deleteArr} from "@/utils";
+import { deepCopy, deleteArr } from "@/utils";
 import {
   getAssignProcess,
   putAssignProcess,
@@ -84,7 +84,7 @@ export default {
       var data = {
         component_unique_id: id,
         id: this.id,
-        is_type:0
+        is_type: 0,
       };
       checkComponent(data).then((response) => {
         this.$message({
@@ -92,7 +92,7 @@ export default {
           type: "warning",
         });
       });
-       this.tableData.push({
+      this.tableData.push({
         id: this.tableData.length + 1,
         component_unique_id: "",
       });
@@ -110,12 +110,14 @@ export default {
         type: "warning",
       })
         .then(() => {
+          this.multipleSelection.forEach((e) => {
+            deleteArr(
+              this.tableData,
+              "id",
+              e.id
+            );
+          });
 
-         
-            this.multipleSelection.forEach((e) => {
-              deleteArr(this.tableData,'component_unique_id',e.component_unique_id)
-            });
-      
           this.$message({
             type: "success",
             message: "删除成功!",
@@ -130,17 +132,18 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      console.log(this.multipleSelection);
+      //console.log(this.multipleSelection);
     },
     changeInstore(num) {
-      console.log(this.id);
+      //console.log(this.id);
       putInstore(this.id, { instore: num }).then((resoponse) => {
-        console.log(resoponse);
+        //console.log(resoponse);
       });
     },
     submit() {
-      console.log(this.tableData);
+      //console.log(this.tableData);
       var data = deepCopy(this.tableData);
+      deleteArr(data, "component_unique_id", "");
       data.forEach((e) => {
         // e["original_id"] = e[this.tableHeader[1]];
         // e["component_unique_id"] = e[this.tableHeader[2]];
@@ -148,39 +151,51 @@ export default {
         e["component_status"] = 1; //确认入库
         //e["component_status1"] = 0;
       });
-      console.log(data);
+      //console.log(data);
       this.$confirm("确定上述试验件入库?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          scanCode({
+          const loading = this.$loading({
+            lock: true,
+            text: "Loading",
+            spinner: "el-icon-loading",
+            background: "rgba(0, 0, 0, 0.7)",
+          });
+          // scanCode({
+          //   data: data,
+          //   id: this.id,
+          // }).then((respones) => {
+          //console.log(respones);
+          // if (respones.message == "Success") {
+          putAssignProcess({
             data: data,
             id: this.id,
-          }).then((respones) => {
-            console.log(respones);
-            // if (respones.message == "Success") {
-              putAssignProcess({
-                data: data,
-                id: this.id,
-              }).then((respones) => {
-                console.log(respones);
-                this.changeInstore(data.length);
-                this.$notify({
-                  title: "Success",
-                  message: "提交成功",
-                  type: "success",
-                });
+          })
+            .then((respones) => {
+              //console.log(respones);
+              this.changeInstore(data.length);
+              loading.close();
+              this.$notify({
+                title: "Success",
+                message: "提交成功",
+                type: "success",
               });
-              //可以扫码入库
-            // } else {
-            //   //不符合入库规则
-            //   this.$message.error(
-            //     `有${respones.data.length}条数据不满足入库要求,请检查后再提交`
-            //   );
-            // }
-          });
+            })
+            .catch((err) => {
+              console.log(err);
+              loading.close();
+            });
+          //可以扫码入库
+          // } else {
+          //   //不符合入库规则
+          //   this.$message.error(
+          //     `有${respones.data.length}条数据不满足入库要求,请检查后再提交`
+          //   );
+          // }
+          // });
         })
         .catch(() => {
           this.$message({
@@ -188,7 +203,7 @@ export default {
             message: "已取消删除",
           });
         });
-      console.log(data);
+      //console.log(data);
     },
     oncancel() {},
     beforeUpload(file) {
@@ -209,7 +224,7 @@ export default {
       // });
       this.tableData = results;
 
-     // this.tableHeader = header;
+      // this.tableHeader = header;
     },
     generateUUID() {
       var d = new Date().getTime();

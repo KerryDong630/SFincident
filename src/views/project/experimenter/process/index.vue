@@ -3,7 +3,7 @@
     <el-header style="line-height: 60px">领取工单任务 </el-header>
     <el-main>
       <el-form class="demo-form-inline">
-        <el-row :gutter="40">
+        <el-row :gutter="30">
           <el-col :xs="12" :sm="12" :lg="12">
             <el-form-item label="试验主管">
               {{ form.create_name }}
@@ -75,6 +75,9 @@
         >
         </el-table-column>
         <el-table-column label="实验员" prop="experimenter" key="experimenter">
+            <template slot-scope="scope">
+          {{ getUName(scope.row.experimenter) }}
+        </template>
         </el-table-column>
         <el-table-column
           label="试验件状态"
@@ -119,6 +122,7 @@
               <el-button
                 slot="trigger"
                 type="text"
+                 v-if="scope.row.component_status1 == 2"
                 size="small"
                 @click="loadComponent(scope.$index, scope.row)"
                 >上传实验单</el-button
@@ -134,8 +138,9 @@
             <br/>
             <el-button
               type="danger"
+              
               size="small"
-              v-if="scope.row.component_status1 !== 5"
+              v-if="scope.row.component_status1 !== 5 && scope.row.component_status1 == 2"
               @click="removeComponent(scope.$index, scope.row)"
             >
               报损
@@ -180,6 +185,7 @@ export default {
       forms: [],
       fileList: [],
       currentRow: {},
+      userName:{},
       // 允许的文件类型
       fileType: [
         "xls",
@@ -275,6 +281,7 @@ export default {
     },
     downloadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
+      console.log(sheet_id)
       this.fileName =
         this.form.order_number +
         "_" +
@@ -359,10 +366,10 @@ export default {
     },
     submitComponent: function (row) {
       console.log(row)
-      if(!row.experiment_sheet_id){
-         this.$message.error("请上传实验单再提交！");
-        return
-      }
+      // if(!row.experiment_sheet_id){
+      //    this.$message.error("请上传实验单再提交！");
+      //   return;
+      // }
       //试验件状态变为待审核
       this.$confirm("确定提交此试验件?", "提示", {
         confirmButtonText: "确定",
@@ -429,10 +436,16 @@ export default {
         }
       });
     },
+    getUName(user){
+      return this.userName[user];
+    },  
     getUsersList() {
       getUsersList().then((response) => {
         console.log(response);
         this.users = response.data;
+          response.data.forEach(ele=>{
+          this.userName[ele.username] = ele.u_name
+        });
       });
     },
     getAssignList() {

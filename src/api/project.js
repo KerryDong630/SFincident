@@ -45,3 +45,17 @@ export function getCompanys() {
   })
 }
 
+export function getMainData(){
+     return requestdev({
+       url:'/pieDataList',
+       method:'get'
+     })
+}
+
+export function putMainData(data) {
+  return requestdev({
+    url: '/pieDataList',
+    method: 'put',
+    data
+  })
+}

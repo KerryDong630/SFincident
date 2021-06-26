@@ -4,7 +4,10 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            <svg-icon
+              icon-class="incidentprocess"
+              class-name="card-panel-icon"
+            />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">处理中工单</div>
@@ -20,7 +23,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="lock" class-name="card-panel-icon" />
+            <svg-icon icon-class="unprocess" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">待领取工单</div>
@@ -52,7 +55,7 @@
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+            <svg-icon icon-class="assign" class-name="card-panel-icon" />
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">派给我的工单</div>
@@ -98,6 +101,9 @@
         prop="experimenter"
         sortable
       >
+           <template slot-scope="scope">
+          {{ getUName(scope.row.experimenter) }}
+        </template>
       </el-table-column>
       <el-table-column
         key="incident_id"
@@ -112,6 +118,9 @@
         prop="create_name"
         sortable
       >
+      <template slot-scope="scope">
+          {{ getUName(scope.row.create_name) }}
+        </template>
       </el-table-column>
       <el-table-column
         key="start_time_d"
@@ -178,6 +187,8 @@
 <script>
 import { processOverview } from "@/api/process";
 import CountTo from "vue-count-to";
+import { getUsersList } from "@/api/user";
+
 import {
   getProcess,
   putProcessStatus,
@@ -194,7 +205,7 @@ const statusFilters = [
     value: 1,
   },
   {
-    text: "已分配",
+    text: "待领取",
     value: 2,
   },
   {
@@ -237,6 +248,7 @@ export default {
       proNameFilters: [],
       tableColumnList: [],
       list: null,
+      users: {},
       overviewData: {},
       listQuery: {
         page: 1,
@@ -252,10 +264,22 @@ export default {
     this.getOverview();
   },
   created() {
+    this.getUsersList();
     this.getOverview();
     this.getProcess();
   },
   methods: {
+    getUName(user) {
+      return this.users[user];
+    },
+    getUsersList() {
+      getUsersList().then((response) => {
+        console.log(response);
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+      });
+    },
     getColor(status) {
       if (status == 2) {
         return "#409EFF";

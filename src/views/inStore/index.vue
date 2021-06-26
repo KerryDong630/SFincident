@@ -363,7 +363,7 @@ export default {
           this.downloadLoading = false;
         });
         //this.exportExcel(tableArr, tableData);
-        console.log(tableData);
+       // console.log(tableData);
       });
     },
     getStatus(value) {

@@ -66,16 +66,40 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/newDashboard',
+    path: '/pieData',
     component: Layout,
-    redirect: '/newDashboard',
+    redirect: '/pieData',
+    hidden: true,
     children: [{
-      path: '/newDashboard',
-      name: 'newDashboard',
-      component: () => import('@/views/newDashboard/index'),
-      meta: { title: '大屏', icon: 'dashboard' }
+      path: '/pieData',
+      name: 'PieData',
+      component: () => import('@/views/project/project/pieData'),
+      meta: { title: '维护数据', icon: 'dashboard' }
     }]
   },
+  {
+    path: '/alertata',
+    component: Layout,
+    redirect: '/alertata',
+    hidden: true,
+    children: [{
+      path: '/alertata',
+      name: 'AlertDaDta',
+      component: () => import('@/views/project/program/alertData'),
+      meta: { title: '消息维护', icon: 'dashboard' }
+    }]
+  },
+  // {
+  //   path: '/newDashboard',
+  //   component: Layout,
+  //   redirect: '/newDashboard',
+  //   children: [{
+  //     path: '/newDashboard',
+  //     name: 'newDashboard',
+  //     component: () => import('@/views/newDashboard/index'),
+  //     meta: { title: '大屏', icon: 'dashboard' }
+  //   }]
+  // },
   // {
   //   path: '/scanCode',
   //   component: Layout,

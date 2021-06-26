@@ -2,6 +2,7 @@ import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken,getUser,setUser,removeUser } from '@/utils/auth'
 import { resetRouter, scynRoutes } from '@/router'
 import Router from '@/router'
+import { Message } from 'element-ui'
 
 
 const getDefaultState = () => {
@@ -57,6 +58,7 @@ const actions = { // user login
                 console.log('get token')
                 resolve()
             }).catch(error => {
+                Message.error('用户名密码错误')
                 reject(error)
             })
         })
@@ -82,17 +84,8 @@ const actions = { // user login
                     return reject('Verification failed, please Login again.')
                 }
                 const { username, avatar, u_authority,u_status } = data
-                // if(u_status == 0){
-                
-                //     Router.push({name: 'changepw'});
-                //     // Router.push({
-                //     //     name: 'changepw'
-                //     // })
-                   
-                // }
-
-               
-
+      
+    
                 var roles = u_authority.split(",");
                 // 模拟请求数据
                 const menus = actions.getDyRouters(roles);

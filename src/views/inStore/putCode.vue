@@ -237,7 +237,7 @@ export default {
   watch: {
     form_id() {
       this.sourceUrl = global_msg.host + "/getFile/" + this.form_id;
-      console.log(this.sourceUrl);
+      //console.log(this.sourceUrl);
     },
   },
   created() {
@@ -247,7 +247,7 @@ export default {
   mounted: function () {
     this.order_number = this.$route.query.order_number;
     this.instore_id = this.$route.query.id;
-    this.is_num = getStoreInfo(this.instore_id);
+    this.is_num = this.getStoreInfo(this.instore_id);
     //this.getList(this.order_number);
   },
   methods: {
@@ -259,7 +259,7 @@ export default {
     getRules() {
       getRulesList().then((respones) => {
         var ruleList = respones.data;
-        console.log(ruleList);
+        //console.log(ruleList);
         ruleList.forEach((element) => {
           if (element.type == "MC") {
             this.mcarr.push({
@@ -280,7 +280,7 @@ export default {
             });
           }
         });
-        console.log(this.tyarr);
+        //console.log(this.tyarr);
       });
     },
     getUrl() {
@@ -294,12 +294,12 @@ export default {
       this.tableDataNoOrig.push(obj);
     },
     selectChange() {
-      console.log(this.ifOrigCode);
+      //console.log(this.ifOrigCode);
     },
     downLoadTemp() {
       this.fileName = "试验件编码模板";
       var url = this.sourceUrl;
-      console.log(url);
+      //console.log(url);
       this.getBlob(url).then((blob) => {
         this.saveAs(blob, this.fileName);
       });
@@ -375,12 +375,19 @@ export default {
       //   this.$message.error('提交数量和入库试验件数量不相符，请检查！')
       //   return
       // }
-      console.log(data);
+      //console.log(data);
       var result = {
         data: data,
       };
+      const loading = this.$loading({
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
       addComponents(result).then((respones) => {
-        console.log(respones);
+        //console.log(respones);
+        loading.close();
         this.$confirm("提交试验编码成功", {
           confirmButtonText: "导出实验编号",
           // cancelButtonText: '取消',
@@ -401,6 +408,9 @@ export default {
         //   message: "提交成功",
         //   type: "success",
         // });
+      }).catch(err=>{
+        console.log(err)
+        loading.close();
       });
     },
     generateID(id) {
@@ -432,7 +442,7 @@ export default {
     generateRuleId(table) {
       var uuid = "";
       var arr = [];
-      console.log(table);
+      //console.log(table);
       for (var key in table) {
         if (key !== "component_unique_id") {
           if (key == "orderNum") {
@@ -449,7 +459,7 @@ export default {
       return uuid;
     },
     generateCode() {
-      console.log(this.tableHeader);
+      //console.log(this.tableHeader);
       if (this.ifOrigCode) {
         this.tableHeader.push("试验件编号");
 
@@ -462,7 +472,7 @@ export default {
         });
       }
 
-      console.log(this.tableDataNoOrig);
+      //console.log(this.tableDataNoOrig);
     },
     exportExcel() {
       this.downloadLoading = true;

@@ -2,9 +2,11 @@
   <div class="dashboard-container">
     <panel-group />
     <el-row style="background: #fff; padding: 16px 16px 0; margin-bottom: 32px">
-      <line-chart :chart-data="lineChartData" />
+      <line-chart/>
     </el-row>
     <el-row :gutter="32">
+         <bar-chart />
+      </el-row>
       <!-- <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <raddar-chart />
@@ -15,7 +17,7 @@
           <pie-chart />
         </div>
       </el-col> -->
-      <el-col :xs="24" :sm="24" :lg="12">
+      <!-- <el-col :xs="24" :sm="24" :lg="12">
         <div class="chart-wrapper">
           <bar-chart />
         </div>
@@ -25,8 +27,8 @@
           <bar-chart />
         </div>
       </el-col>
-    </el-row>
-    <el-row :gutter="32">
+    </el-row> -->
+    <!-- <el-row :gutter="32"> -->
       <!-- <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <raddar-chart />
@@ -37,7 +39,7 @@
           <pie-chart />
         </div>
       </el-col> -->
-      <el-col :xs="24" :sm="24" :lg="12">
+      <!-- <el-col :xs="24" :sm="24" :lg="12">
         <div class="chart-wrapper">
           <bar-chart />
         </div>
@@ -47,7 +49,7 @@
           <bar-chart />
         </div>
       </el-col>
-    </el-row>
+    </el-row> -->
   </div>
 </template>
 
@@ -58,10 +60,10 @@ import LineChart from "./LineChart";
 import BarChart from "./BarChart";
 
 const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145],
-  },
+  // newVisitis: {
+  //   expectedData: [100, 120, 161, 134, 105, 160, 165],
+  //   actualData: [120, 82, 91, 154, 162, 140, 145],
+  // },
   messages: {
     expectedData: [200, 192, 120, 144, 160, 130, 140],
     actualData: [180, 160, 151, 106, 145, 150, 130],
@@ -85,7 +87,7 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis,
+      // lineChartData: lineChartData.newVisitis,
     };
   },
   computed: {

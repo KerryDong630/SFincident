@@ -7,12 +7,12 @@
         <el-row :gutter="40">
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="用户名">
-              <el-input v-model="form.username" placeholder="用户名保证唯一性"></el-input>
+              <el-input v-model="form.username" placeholder="用户名保证唯一性,不可为中文"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="工号">
-              <el-input v-model="form.u_id" placeholder="工号保证唯一性"></el-input>
+              <el-input v-model="form.u_id" placeholder="工号保证唯一性，不可为中文"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">

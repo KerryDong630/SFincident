@@ -6,7 +6,8 @@
         <el-row :gutter="40">
           <el-col :xs="12" :sm="12" :lg="12" class="parent">
             <el-form-item label="试验主管">
-              {{ form.create_name }}
+               {{ getUName(form.create_name) }}
+           
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="12">
@@ -31,7 +32,9 @@
           </el-col>
           <el-col :xs="12" :sm="12" :lg="12">
             <el-form-item label="当前工序负责人">
-              {{ form.process_owner }}
+    
+            {{ getUName(form.process_owner) }}
+            
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="12">
@@ -52,7 +55,7 @@
         <el-step
           v-for="pre in form.processes"
           :key="pre.process_id"
-          :title="pre.process_name"
+           :title="pre.process_name"
           :description="'当前工序负责人:' + pre.process_owner"
         ></el-step>
       </el-steps>
@@ -84,13 +87,16 @@
           </template>
         </el-table-column>
         <el-table-column label="实验员" prop="experimenter" key="experimenter">
+          <template slot-scope="scope">
+            {{ getUName(scope.row.experimenter) }}
+          </template>
         </el-table-column>
         <el-table-column fixed="right" label="实验单" width="150">
           <template slot-scope="scope">
             <el-button
               type="text"
               size="small"
-               v-if="scope.row.component_status1 == 4"
+               v-if="scope.row.component_status1 == 4 || scope.row.component_status1 == 6 || scope.row.component_status1 == 3"
               @click="loadComponent(scope.$index, scope.row)"
             >
               下载
@@ -134,11 +140,12 @@ import {
 import { addComponents } from "@/api/component";
 const componentStatus = {
   0: "待分配",
-  1: "已分配",
+  1: "已分配工单",
   2: "实验中",
   3: "实验结束",
   4: "待审核",
-  5:"报废"
+  5:"报废",
+    6: "成品"
 };
 export default {
   data() {
@@ -149,6 +156,7 @@ export default {
       current_step: null,
       process_id: null,
       users: null,
+      userName:{},
       fileName: "",
       form: {},
       processStatus: null,
@@ -233,7 +241,7 @@ export default {
         .then(() => {
           console.log(row);
           row["component_status1"] = 3; //已完成
-          row['experiment_sheet_id'] = null;
+          //row['experiment_sheet_id'] = null;
           putAssignProcess({
             data: [row],
           }).then((respones) => {
@@ -330,10 +338,16 @@ export default {
         }
       });
     },
+      getUName(user){
+      return this.userName[user];
+    },  
     getUsersList() {
       getUsersList().then((response) => {
         console.log(response);
         this.users = response.data;
+         response.data.forEach(ele=>{
+          this.userName[ele.username] = ele.u_name
+        });
       });
     },
     getAssignList() {
