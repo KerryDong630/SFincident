@@ -414,7 +414,9 @@ export default {
       });
     },
     generateID(id) {
-      var uuid = this.order_number + "-" + id;
+      var len = this.order_number.length;
+      var str = this.order_number.slice(len-5,len);
+      var uuid = str + "-" + id;
 
       return uuid;
     },
