@@ -330,10 +330,8 @@ export default {
 
       })
       }
-      console.log(this.tableColumnList)
     },
     getList() {
-        console.log(this.listTable)
         this.gettableColumnList(this.listTable);
         this.total = response.data.total;
 
@@ -392,7 +390,7 @@ export default {
             this.dialogFormVisible = false;
             this.$notify({
               title: "Success",
-              message: "Created Successfully",
+              message: "创建成功",
               type: "success",
               duration: 2000,
             });

@@ -151,22 +151,22 @@ export default {
     },
     postTemFile(data) {
       postTemFile(data["f_key"], data).then((response) => {
-        console.log(response);
+      
       });
     },
     processChange() {
-      console.log(this.processname);
+      
       this.tempid = this.tempname.toString() + this.processname.toString();
       this.processOptions.forEach((ele) => {
         if (ele.key == this.processname) {
           this.fileDes = ele.value;
         }
       });
-      console.log(this.tempid);
+      
       this.handleRemove();
     },
     fileChange() {
-      console.log(this.tempname);
+      
       this.getFileName(this.tempname);
       this.tempid = this.tempname;
       this.handleRemove();
@@ -194,7 +194,7 @@ export default {
       return flag;
     },
     handleSuccess(response, file, index) {
-      console.log(response);
+      ;
       console.log(index);
     },
     onError(err) {
@@ -222,7 +222,7 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.$alert(
             `文件${this.fileDes}上传成功，文件ID是：${response.file_id}`,
             {
@@ -237,7 +237,7 @@ export default {
             }
           );
 
-          console.log(response);
+          ;
         })
         .catch((error) => {
           console.log(error);

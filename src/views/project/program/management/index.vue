@@ -250,7 +250,6 @@ export default {
   },
   created() {
     this.getUsersList();
-    this.getList();
   },
   methods: {
     toData() {
@@ -261,10 +260,10 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
+        this.getList();
         console.log("users");
         console.log(this.users);
       });
@@ -272,7 +271,43 @@ export default {
     refresh() {
       this.getList();
     },
-    exportExecel() {},
+    getHeader(data) {
+      return Object.keys(data);
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else {
+            return v[j];
+          }
+        })
+      );
+    },
+    exportExecel() {
+      var tHeader = this.getHeader(this.list[0]);
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then((excel) => {
+        //const tHeader = this.tableHeader;
+        const filterVal = tHeader;
+        //const list = this.tableData;
+        const data = this.formatJson(filterVal, this.list);
+ 
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "试验任务数据",
+          autoWidth: this.autoWidth,
+          bookType: this.bookType,
+        });
+        this.$message({
+          type: "success",
+          message: "导出成功!",
+        });
+        this.downloadLoading = false;
+      });
+    },
     filterHandler(value, row, column) {
       const property = column["property"];
       return row[property] === value;
@@ -302,7 +337,6 @@ export default {
     showDetail(row) {
       //查看任务具体内容
       this.dialogPvVisible = true;
-      console.log(row);
       this.pvData = row;
     },
     add() {
@@ -319,7 +353,6 @@ export default {
           });
         }
       }
-      console.log(this.tableColumnList);
     },
     getFilter(list) {
       list.forEach((row) => {
@@ -337,7 +370,6 @@ export default {
       this.listLoading = true;
       getProgramsList().then((response) => {
         this.list = response.data;
-        console.log(this.list);
         this.getTableColumnList(this.list);
         this.getFilter(this.list);
         this.listLoading = false;

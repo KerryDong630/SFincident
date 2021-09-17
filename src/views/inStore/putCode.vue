@@ -15,7 +15,6 @@
         <el-select
           v-model="ifOrigCode"
           placeholder="*是否有原始码"
-          
           @change="selectChange"
           style="width: 150px"
           class="filter-item"
@@ -32,7 +31,19 @@
         v-if="ifOrigCode"
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
+        class="excel-upload"
       />
+
+      <el-checkbox v-model="checked" v-if="ifOrigCode"
+        >是否自动生成</el-checkbox
+      >
+      <el-input
+        
+        v-model="input"
+        v-if="ifOrigCode && !checked"
+        class="orderInput"
+      ></el-input>
+
       <el-table
         v-if="ifOrigCode"
         :data="tableData"
@@ -195,12 +206,14 @@ export default {
       ],
       sourceUrl: "",
       form_id: "",
+      input:"",
       filename: "",
       autoWidth: true,
       bookType: "xlsx",
       tableData: [],
       tableHeader: [],
       newObj,
+      checked: true,
       mcarr: [],
       tyarr: [],
       pcarr: [],
@@ -290,7 +303,7 @@ export default {
       });
     },
     addNewLine() {
-      var obj = deepCopy(this.newObj)
+      var obj = deepCopy(this.newObj);
       this.tableDataNoOrig.push(obj);
     },
     selectChange() {
@@ -375,7 +388,7 @@ export default {
       //   this.$message.error('提交数量和入库试验件数量不相符，请检查！')
       //   return
       // }
-      //console.log(data);
+      
       var result = {
         data: data,
       };
@@ -385,37 +398,39 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)",
       });
-      addComponents(result).then((respones) => {
-        //console.log(respones);
-        loading.close();
-        this.$confirm("提交试验编码成功", {
-          confirmButtonText: "导出实验编号",
-          // cancelButtonText: '取消',
-          type: "success",
-          center: true,
-        })
-          .then(() => {
-            this.exportExcel();
+      addComponents(result)
+        .then((respones) => {
+          //console.log(respones);
+          loading.close();
+          this.$confirm("提交试验编码成功", {
+            confirmButtonText: "导出实验编号",
+            // cancelButtonText: '取消',
+            type: "success",
+            center: true,
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
+            .then(() => {
+              this.exportExcel();
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消删除",
+              });
             });
-          });
-        // this.$notify({
-        //   title: "Success",
-        //   message: "提交成功",
-        //   type: "success",
-        // });
-      }).catch(err=>{
-        console.log(err)
-        loading.close();
-      });
+          // this.$notify({
+          //   title: "Success",
+          //   message: "提交成功",
+          //   type: "success",
+          // });
+        })
+        .catch((err) => {
+          console.log(err);
+          loading.close();
+        });
     },
     generateID(id) {
       var len = this.order_number.length;
-      var str = this.order_number.slice(len-5,len);
+      var str = this.order_number.slice(len - 5, len);
       var uuid = str + "-" + id;
 
       return uuid;
@@ -444,7 +459,6 @@ export default {
     generateRuleId(table) {
       var uuid = "";
       var arr = [];
-      //console.log(table);
       for (var key in table) {
         if (key !== "component_unique_id") {
           if (key == "orderNum") {
@@ -461,12 +475,15 @@ export default {
       return uuid;
     },
     generateCode() {
-      //console.log(this.tableHeader);
       if (this.ifOrigCode) {
         this.tableHeader.push("试验件编号");
 
         this.tableData.forEach((e) => {
-          e["试验件编号"] = this.generateID(e.试验件原始编号);
+          if (this.checked) {
+            e["试验件编号"] = this.generateID(e.试验件原始编号);
+          } else {
+            e["试验件编号"] = this.input + "-" + e.试验件原始编号;
+          }
         });
       } else {
         this.tableDataNoOrig.forEach((e) => {
@@ -536,4 +553,11 @@ export default {
 </script>
 
 <style>
+.orderInput {
+  width: 300px;
+  margin-left: 20px;
+}
+.excel-upload{
+  margin-bottom: 20px;
+}
 </style>

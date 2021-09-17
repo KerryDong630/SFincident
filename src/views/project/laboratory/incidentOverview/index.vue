@@ -238,7 +238,7 @@ export default {
   created() {
     this.getUsersList();
     this.getOverview();
-    this.getProcess();
+   
   },
   data() {
     return {
@@ -266,10 +266,10 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
+         this.getProcess();
       });
     },
     getFilter(list) {
@@ -290,8 +290,6 @@ export default {
     },
     filterHandler(value, row, column) {
       const property = column["property"];
-      console.log(row[property]);
-      console.log(value);
       return row[property] === value;
     },
     getId(index) {
@@ -338,7 +336,6 @@ export default {
     },
     getProcess() {
       getProcess("process_owner").then((response) => {
-        console.log(response);
         this.list = response.data;
         //this.getStatus();
         this.getColumns(this.list);
@@ -360,7 +357,6 @@ export default {
     },
     getOverview() {
       processOverview("process_owner").then((response) => {
-        console.log(response);
         response.processIncident =
           response.processIncident + response.assginIncident;
         this.overviewData = response;

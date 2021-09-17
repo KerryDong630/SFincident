@@ -1,5 +1,5 @@
-//const host = 'http://127.0.0.1:5000';
-const host = "http://kerrytest.natapp1.cc"
+const host = 'http://127.0.0.1:5000';
+//const host = "http://kerrytest.natapp1.cc"
 //const host = "http://timotest.top:50001"
 
 export default{

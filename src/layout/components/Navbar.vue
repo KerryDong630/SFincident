@@ -11,7 +11,7 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          {{ name }}
+          {{ name}}
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -40,12 +40,14 @@ import { mapGetters } from "vuex";
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
 import store from "@/store";
+import { getUsersList } from "@/api/user";
 import { getMessageList } from "@/api/message";
 export default {
   data() {
     return {
+      users: {},
       m_count: null,
-      name: store.getters.username,
+      name: '',
     };
   },
   components: {
@@ -56,12 +58,22 @@ export default {
     ...mapGetters(["sidebar", "avatar"]),
   },
   created() {
+    this.getUsersList();
     this.getMessageList();
   },
   methods: {
+      getUsersList() {
+      getUsersList().then((response) => {
+        
+        response.data.forEach((ele) => {
+          this.users[ele.username] = ele.u_name;
+        });
+        this.name = this.users[store.getters.username]
+      });
+    },
     getMessageList() {
       getMessageList().then((response) => {
-        console.log(response);
+        
         this.m_count = response.count;
       });
     },

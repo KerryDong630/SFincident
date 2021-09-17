@@ -115,7 +115,6 @@ export default {
           }
         });
       }
-      console.log(that.form.u_authority);
     },
     onSubmit() {
       var arr = this.checkRoles.concat();
@@ -128,12 +127,11 @@ export default {
 
       this.temp["u_password"] = '00000000'; //默认密码
       this.temp["u_authority"] = this.temp["u_authority"].join(",");
-      console.log(this.temp);
       addUser(this.temp).then(() => {
         // this.dialogFormVisible = false;
         this.$notify({
           title: "Success",
-          message: "Created Successfully",
+          message: "创建成功",
           type: "success",
         });
         this.$router.push("/users");

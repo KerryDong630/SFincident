@@ -201,7 +201,7 @@ export default {
   created() {
     this.getUsersList();
     this.getOverview();
-    this.getIncidet();
+   
   },
   data() {
     return {
@@ -245,8 +245,7 @@ export default {
         const filterVal = tHeader;
         //const list = this.tableData;
         const data = this.formatJson(filterVal, list);
-        console.log(tHeader);
-        console.log(data);
+ 
         excel.export_json_to_excel({
           header: tHeader,
           data,
@@ -279,7 +278,6 @@ export default {
           //const list = this.tableData;
           const data = this.formatJson(filterVal, table);
 
-          console.log(data);
           excel.export_json_to_excel({
             header: tHeader,
             data,
@@ -300,12 +298,10 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
-        console.log("users");
-        console.log(this.users);
+        this.getIncidet();
       });
     },
     add() {
@@ -344,7 +340,6 @@ export default {
     sortChange() {},
     getOverview() {
       incidentOverview().then((response) => {
-        console.log(response);
         this.overviewData = response;
       });
     },
@@ -385,10 +380,8 @@ export default {
     },
     getIncidet() {
       incidentList().then((response) => {
-        console.log(response);
         this.list = response.data;
         //this.getStatus();
-
         this.getColumns(this.list);
         this.getFilter(this.list);
       });

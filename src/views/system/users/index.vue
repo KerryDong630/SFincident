@@ -56,7 +56,7 @@
         </el-button>
       </div> -->
       <div class="tool-button">
-        <el-button type="primary" @click="upload">上传表格</el-button>
+        <!-- <el-button type="primary" @click="upload">上传表格</el-button> -->
 
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
@@ -281,7 +281,7 @@ export default {
     getTableColumnList(list) {
       var obj = list[0];
       for (var v in obj) {
-        console.log(v);
+    
         if(v in showLable ){
 
         this.tableColumnList.push({
@@ -303,7 +303,6 @@ export default {
       this.listLoading = true;
       this.tableColumnList = [];
       getUsersList().then((response) => {
-        console.log(response);
         this.listLoading = false;
         response.data.forEach(ele=>{
           ele.u_authority = this.showAuth(ele.u_authority)
@@ -312,14 +311,13 @@ export default {
 
         this.getTableColumnList(this.list);
         this.getFilters(this.list);
-        console.log(response);
       });
       // this.$axios.get("http://127.0.0.1:8000/up/users").then((response) => {
       //   //let data = response.data;
 
       // });
       // getUsersList().then((response) => {
-      //   console.log(response)
+      //   
       // this.list = response.data.items;
       // this.getTableColumnList(this.list);
       // this.total = response.data.total;

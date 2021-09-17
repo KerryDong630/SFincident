@@ -194,8 +194,6 @@ export default {
   },
   methods: {
     getType(value) {
-      console.log(value);
-      console.log(this.typeOptions[value])
       return this.typeOptions[value];
     },
     uploadFile(file) {
@@ -207,7 +205,7 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.sign_check_form_id = response.file_id;
 
           this.$notify({
@@ -296,7 +294,6 @@ export default {
      */
     downLoad(index) {
       var row = this.forms[index];
-      console.log(row);
       var file_id = row.check_form_id;
       if (file_id) {
         this.downLoadUrl = global_msg.host + "/getFile/" + file_id;
@@ -347,7 +344,6 @@ export default {
       });
     },
     getList(id) {
-      console.log(this.typeOptions)
       this.loadind = true;
       getConfirmInstore(id).then((response) => {
         // this.dialogFormVisible = false;

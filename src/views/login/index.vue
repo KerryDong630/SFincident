@@ -10,7 +10,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">中国XXXX中心</h3>
+        <h3 class="title">先进材料结构实验室试验件平台</h3>
       </div>
 
       <el-form-item prop="username">
@@ -71,11 +71,7 @@
         </span>
         
       </div>
-      <div>
-        <span 
-          >备案/许可证编号为：沪ICP备2021016575号</span
-        >
-      </div>
+    
     </el-form>
 
     <el-form
@@ -197,7 +193,7 @@ export default {
     return {
       loginForm: {
         username: "admin",
-        password: "18514427806",
+        password: "admin",
       },
       loginRules: {
         pass: [{ validator: validatePass, trigger: "blur" }],
@@ -248,7 +244,6 @@ export default {
       $event.currentTarget.className = "noactive changeRouter";
     },
     changePwd() {
-      console.log("change");
       this.ifChange = true;
     },
     showPwd() {

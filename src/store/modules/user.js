@@ -15,7 +15,7 @@ const getDefaultState = () => {
         menus: '', // 新增
     }
 }
-console.log(scynRoutes.admin)
+
 const state = getDefaultState()
 
 const mutations = {
@@ -64,12 +64,19 @@ const actions = { // user login
         })
     },
     getDyRouters(roles) {
-        var menus = []
+        var menus = [];
         var obj = JSON.parse(JSON.stringify(scynRoutes))
-        roles.forEach(element => {
+        
+        var indexRoles = ['project','program','warehouse','laboratory','experimenter','equipment','information','admin']
+        indexRoles.forEach(ele=>{
+            if(roles.indexOf(ele) == -1){
+                indexRoles.pop(ele)
+            }
+        })
+       
+        indexRoles.forEach(element => {
             menus.push(obj[element])
         });
-        //menus.push(scynRoutes['warehouse'])
         return menus;
     },
 
@@ -89,7 +96,7 @@ const actions = { // user login
                 var roles = u_authority.split(",");
                 // 模拟请求数据
                 const menus = actions.getDyRouters(roles);
-
+                console.log(menus)
                 // 如果需要404 页面，请在此处添加
                 menus.push({
                     path: '/404',

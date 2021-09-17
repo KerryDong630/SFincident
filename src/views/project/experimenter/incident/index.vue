@@ -101,7 +101,7 @@
         prop="experimenter"
         sortable
       >
-           <template slot-scope="scope">
+        <template slot-scope="scope">
           {{ getUName(scope.row.experimenter) }}
         </template>
       </el-table-column>
@@ -118,7 +118,7 @@
         prop="create_name"
         sortable
       >
-      <template slot-scope="scope">
+        <template slot-scope="scope">
           {{ getUName(scope.row.create_name) }}
         </template>
       </el-table-column>
@@ -266,7 +266,6 @@ export default {
   created() {
     this.getUsersList();
     this.getOverview();
-    this.getProcess();
   },
   methods: {
     getUName(user) {
@@ -274,10 +273,10 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
+        this.getProcess();
       });
     },
     getColor(status) {
@@ -298,8 +297,7 @@ export default {
     },
     filterHandler(value, row, column) {
       const property = column["property"];
-      console.log(row[property]);
-      console.log(value);
+ 
       return row[property] === value;
     },
     putComponentStatus(process_id) {
@@ -316,7 +314,6 @@ export default {
         putAssignProcess({
           data: components,
         }).then((respones) => {
-          console.log(respones);
         });
       });
     },
@@ -343,7 +340,6 @@ export default {
           this.putComponentStatus(row.process_id);
 
           putProcessStatus(processStatus).then((response) => {
-            console.log(response);
             this.$notify({
               title: "Success",
               message: "领取成功",
@@ -391,7 +387,6 @@ export default {
     },
     getProcess() {
       getProcess("experimenter").then((response) => {
-        console.log(response);
         this.list = response.data;
         //this.getStatus();
         this.getColumns(this.list);
@@ -399,7 +394,6 @@ export default {
     },
     getOverview() {
       processOverview("experimenter").then((response) => {
-        console.log(response);
         this.overviewData = response;
       });
     },

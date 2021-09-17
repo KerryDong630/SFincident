@@ -78,8 +78,7 @@ export default {
         }
         this.xData = xData;
         this.yData = yData;
-        console.log(this.xData)
-        console.log(this.yData)
+
         this.initChart();
       });
     },
@@ -89,7 +88,7 @@ export default {
       this.setOptions(this.xData,this.yData);
     },
     setOptions(xData,yData) {
-      console.log(xData,yData)
+      
       this.chart.setOption({
         title:{
                   text: '试验件一周完成数量',

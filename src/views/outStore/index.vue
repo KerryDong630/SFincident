@@ -1,16 +1,13 @@
 
 <template>
- <el-container>
-     <el-header style="line-height: 60px">
-         出库管理
-     </el-header>
-    
-    
+  <el-container>
+    <el-header style="line-height: 60px"> 出库管理 </el-header>
+
     <el-main>
       <div class="tool-button">
-        <el-button @click="add">新增</el-button>
-        <el-button @click="refresh">刷新</el-button>
-        <el-button @click="exportExcel">导出</el-button>
+        <el-button @click="add" type="primary">新增</el-button>
+        <el-button @click="refresh" type="primary">刷新</el-button>
+        <el-button @click="exportExcel" type="primary">导出</el-button>
       </div>
       <el-table
         stripe
@@ -26,12 +23,7 @@
             {{ getId(scope.$index) }}
           </template>
         </el-table-column> -->
-        <el-table-column
-          key="pro_name"
-          label="编号"
-       
-          prop="id"
-        >
+        <el-table-column key="pro_name" label="编号" prop="id">
         </el-table-column>
         <el-table-column
           key="pro_name"
@@ -57,7 +49,7 @@
         </el-table-column> -->
         <el-table-column key="is_type" label="出库类型" prop="is_type">
         </el-table-column>
-           <el-table-column key="out_name" label="出库接收人" prop="out_name">
+        <el-table-column key="out_name" label="出库接收人" prop="out_name">
         </el-table-column>
         <!-- <el-table-column key="check_name" label="审核人" prop="check_name">
         </el-table-column> -->
@@ -79,12 +71,15 @@
             <i :class="getStatus(scope.row)" :style="{'color': getColor(scope.row.is_status)}" ></i>
           </template>
         </el-table-column> -->
-        <el-table-column key="in_date" label="出库日期" prop="out_date" sortable>
+        <el-table-column
+          key="in_date"
+          label="出库日期"
+          prop="out_date"
+          sortable
+        >
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="250">
+        <el-table-column fixed="right" label="操作">
           <template slot-scope="{ row }">
-           
-           
             <el-tooltip content="扫码入库" placement="top">
               <el-button
                 size="mini"
@@ -118,19 +113,14 @@
         </el-table-column>
       </el-table>
     </el-main>
-    
- </el-container>
+  </el-container>
 </template>
 
 <script>
-
-
-
 export default {
   name: "outStore",
   components: {
-   // ComplexTable
-   
+    // ComplexTable
   },
 };
 </script>
@@ -242,7 +232,6 @@ export default {
     filterHandler(value, row, column) {
       const property = column["property"];
       return row[property] === value;
-      
     },
     getFilter(list) {
       list.forEach((row) => {
@@ -270,15 +259,14 @@ export default {
         }
       });
     },
-    getColor(status){
-      if(status == 1){
-        return '#67c23A';
-      }else if(status == 0){
+    getColor(status) {
+      if (status == 1) {
+        return "#67c23A";
+      } else if (status == 0) {
         return "#E6A23C";
-      }else{
+      } else {
         return "#F56C6C";
       }
-      
     },
     editCode(row) {
       this.$router.push({
@@ -303,19 +291,22 @@ export default {
         })
       );
     },
-    exportExcel(tHeader, list) {
+    getHeader(data) {
+      return Object.keys(data);
+    },
+    exportExcel() {
+      var tHeader = this.getHeader(this.list[0]);
       this.downloadLoading = true;
       import("@/vendor/Export2Excel").then((excel) => {
         //const tHeader = this.tableHeader;
         const filterVal = tHeader;
         //const list = this.tableData;
-        const data = this.formatJson(filterVal, list);
-        console.log(tHeader);
-        console.log(data);
+        const data = this.formatJson(filterVal, this.list);
+
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "试验件编码",
+          filename: "出库管理",
           autoWidth: this.autoWidth,
           bookType: this.bookType,
         });
@@ -346,8 +337,7 @@ export default {
           const filterVal = tableArr;
           //const list = this.tableData;
           const data = this.formatJson(filterVal, tableData);
-          
-          console.log(data);
+
           excel.export_json_to_excel({
             header: tHeader,
             data,
@@ -361,17 +351,16 @@ export default {
           });
           this.downloadLoading = false;
         });
-        //this.exportExcel(tableArr, tableData);
+
         console.log(tableData);
       });
     },
     getStatus(value) {
-      console.log(value.is_status);
-      if(value.is_status == 1){
-        return "el-icon-success"
-      }else if(value.is_status == 0){
-        return "el-icon-video-pause"
-      }else{
+      if (value.is_status == 1) {
+        return "el-icon-success";
+      } else if (value.is_status == 0) {
+        return "el-icon-video-pause";
+      } else {
         return "el-icon-error";
       }
       //return 'el-icon-delete'
@@ -389,7 +378,6 @@ export default {
         }
       });
     },
-    exportExcel() {},
 
     filterHandler(value, row, column) {
       const property = column["property"];
@@ -412,7 +400,6 @@ export default {
     },
     showDetail(row) {
       var id = row.sid;
-      console.log(row);
     },
   },
 };

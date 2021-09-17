@@ -34,7 +34,6 @@ export default {
       },
     postData() {
       postAlter(this.result).then((res) => {
-          console.log(res)
         this.$notify({
           title: "Success",
           message: "提交成功",

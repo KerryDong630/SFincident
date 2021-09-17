@@ -440,7 +440,6 @@ export default {
       var pKey = this.experimentKey[process];
       getTemFileId(pKey).then((response) => {
         this.form_id = response.f_id;
-        console.log(this.form_id);
         this.form_url = global_msg.host + "/getFile/" + this.form_id;
         var url = this.form_url;
         this.fileName = this.form.order_number+"_"+process+"模板";
@@ -455,14 +454,13 @@ export default {
     uploadFile(file) {
       //更新检查单
       const param = new FormData();
-      console.log(this.index);
       param.append("file", file.file);
 
       param.append("category", "process"); //process,
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.listTable[this.index].experiment_sheet_id = response.file_id;
 
           this.$notify({
@@ -499,7 +497,7 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
+        ;
         this.users = response.data;
       });
     },
@@ -524,14 +522,11 @@ export default {
       this.listTable.splice(index + 1, 0, {
         step_number: index + 1,
       });
-
-      console.log(index);
     },
     deleteRow(index, row) {
       this.listTable = this.deleteIndex(this.listTable, index);
       this.listTable.splice(index, 1);
 
-      console.log(index);
     },
     getRange(row,index) {
       var range = row.end_time_d - row.start_time_d;
@@ -539,7 +534,6 @@ export default {
       this.listTable[index+1].start_time_d = row.end_time_d;
 
       }
-      console.log(range);
       row.range_time = range;
     },
     updateView(e) {
@@ -556,12 +550,10 @@ export default {
           });
         }
       }
-      console.log(this.tableColumnList);
     },
     typeChange() {
       var data = this.template[this.form.experi_type];
       this.listTable = [];
-      console.log(this.template);
       data.forEach((element) => {
         var obj = {};
         obj["step_number"] = element["experi_step"];
@@ -575,7 +567,6 @@ export default {
         this.listTable.push(obj);
       });
 
-      console.log(this.listTable);
       //this.getTableColumnList(this.listTable);
     },
     getTemplateEx() {
@@ -595,11 +586,9 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      console.log(val);
     },
     getComponent() {
       addExComponent(this.form.order_number).then((response) => {
-        console.log(response);
         this.componentList = response.data;
       });
     },
@@ -613,9 +602,7 @@ export default {
       })
       this.form["process_list"] = this.listTable;
       this.form["component_list"] = this.testList;
-      console.log(this.form);
       addIncident(this.form).then((response) => {
-        console.log(response);
         this.$notify({
           title: "Success",
           message: "成功创建工单",
@@ -632,7 +619,6 @@ export default {
     },
     getSelection() {
       programsParameters().then((response) => {
-        console.log(response);
         this.selections = response.data;
       });
     },

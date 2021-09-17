@@ -4,9 +4,9 @@
 
     <el-main>
       <div class="tool-button">
-        <el-button @click="add">新增</el-button>
-        <el-button @click="refresh">刷新</el-button>
-        <el-button @click="exportExcel">导出</el-button>
+        <el-button @click="add" type="primary">新增</el-button>
+        <el-button @click="refresh" type="primary">刷新</el-button>
+        <el-button @click="exportExcel" type="primary">导出</el-button>
       </div>
       <el-table
         stripe
@@ -15,8 +15,7 @@
         :data="list"
         border
         highlight-current-row
-        style="width: 100%"
-      >
+        style="width: 100%">
         <!-- <el-table-column key="id" label="编号" prop="id">
           <template slot-scope="scope">
             {{ getId(scope.$index) }}
@@ -134,7 +133,7 @@
 
 <script>
 import { getInstoreList } from "@/api/inStore";
-import { loadCodeComponent } from "@/api/component";
+import { loadCodeComponent, reportFailure } from "@/api/component";
 const lables = {
   pro_name: "项目名称",
   company: "委托公司名称",
@@ -225,8 +224,8 @@ export default {
     this.getList();
   },
   methods: {
-        getType(value) {
-      console.log(value);
+      getType(value) {
+      
       return this.typeOptions[value];
     },
     getId(index) {
@@ -293,6 +292,10 @@ export default {
     refresh() {
       this.getList();
     },
+    getHeader(data){
+       return Object.keys(data)
+
+    },
     formatJson(filterVal, jsonData) {
       return jsonData.map((v) =>
         filterVal.map((j) => {
@@ -304,19 +307,19 @@ export default {
         })
       );
     },
-    exportExcel(tHeader, list) {
+    exportExcel() {
+      var tHeader = this.getHeader(this.list[0])
       this.downloadLoading = true;
       import("@/vendor/Export2Excel").then((excel) => {
         //const tHeader = this.tableHeader;
         const filterVal = tHeader;
         //const list = this.tableData;
-        const data = this.formatJson(filterVal, list);
-        console.log(tHeader);
-        console.log(data);
+        const data = this.formatJson(filterVal, this.list);
+     
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "试验件编码",
+          filename: "入库数据",
           autoWidth: this.autoWidth,
           bookType: this.bookType,
         });
@@ -348,7 +351,6 @@ export default {
           //const list = this.tableData;
           const data = this.formatJson(filterVal, tableData);
           
-          console.log(data);
           excel.export_json_to_excel({
             header: tHeader,
             data,
@@ -366,8 +368,9 @@ export default {
        // console.log(tableData);
       });
     },
+
     getStatus(value) {
-      console.log(value.is_status);
+
       if(value.is_status == 1){
         return "el-icon-success"
       }else if(value.is_status == 0){
@@ -390,7 +393,7 @@ export default {
         }
       });
     },
-    exportExcel() {},
+
 
     filterHandler(value, row, column) {
       const property = column["property"];
@@ -413,7 +416,7 @@ export default {
     },
     showDetail(row) {
       var id = row.sid;
-      console.log(row);
+    
     },
   },
 };

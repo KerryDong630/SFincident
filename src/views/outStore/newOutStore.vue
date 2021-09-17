@@ -228,7 +228,6 @@ export default {
     },
     getSelection() {
       programsParameters().then((response) => {
-        console.log(response);
         this.selections = response.data;
       });
     },
@@ -243,7 +242,6 @@ export default {
         putAssignProcess({
           data: this.tableData,
         }).then((respones) => {
-          console.log(respones);
           this.$notify({
             title: "Success",
             message: "提交成功",
@@ -272,7 +270,6 @@ export default {
         putAssignProcess({
           data: this.tableData,
         }).then((respones) => {
-          console.log(respones);
           this.$notify({
             title: "Success",
             message: "提交成功",
@@ -284,7 +281,6 @@ export default {
         });
       });
 
-      console.log("submit!");
     },
   },
 };

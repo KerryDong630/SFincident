@@ -119,7 +119,6 @@ export default {
           label: v,
         });
       }
-      console.log(this.tableColumnList);
     },
     fetchData() {
       this.listLoading = true;

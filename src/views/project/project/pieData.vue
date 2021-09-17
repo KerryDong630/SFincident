@@ -58,7 +58,6 @@ export default {
             data: this.response,
           };
           putMainData(data).then((res) => {
-            console.log(res);
             this.$message({
               type: "success",
               message: "提交成功!",
@@ -76,7 +75,6 @@ export default {
     getMainData: function () {
       getMainData().then((response) => {
         this.response = response;
-        console.log(this.response);
       });
     },
   },

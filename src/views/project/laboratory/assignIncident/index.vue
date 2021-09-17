@@ -181,7 +181,6 @@ export default {
     },
     loadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
-      console.log(sheet_id);
       this.fileName =
         this.form.order_number +
         "_" +
@@ -283,7 +282,6 @@ export default {
      this.mutipleCheck();
       for (var i = 0; i < this.form.componentlist.length; i++) {
         var element = this.form.componentlist[i];
-        console.log(element)
         if ((!element["experimenter"] || element["experimenter"].trim() == "") && element.component_status1 !== 5) {
           this.$message.error("有未被分配试验员的试验件！请检查");
           return;
@@ -306,7 +304,6 @@ export default {
         experimenter: this.form.componentlist[0].experimenter,
       };
       putAssignProcess(result).then((respones) => {
-        console.log(respones);
 
         this.$notify({
           title: "Success",
@@ -315,7 +312,6 @@ export default {
         });
       });
       putProcessStatus(processStatus).then((response) => {
-        console.log(response);
         this.$notify({
           title: "Success",
           message: "分配成功",
@@ -336,16 +332,12 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         this.users = response.data;
       });
     },
     getAssignList() {
-      console.log(this.process_id);
       getAssignProcess(this.process_id).then((response) => {
-        console.log(response);
         this.form = response.data;
-
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });
     },

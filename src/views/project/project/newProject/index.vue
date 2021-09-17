@@ -233,7 +233,6 @@ export default {
   methods: {
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         this.users = response.data;
       });
     },
@@ -249,12 +248,11 @@ export default {
       this.temp = this.formData;
       this.temp["create_name"] = store.getters.name;
       //this.temp['create_time'] = parseTime(new Date(),'{y}{m}{d}')
-      console.log(this.temp);
       addProject(this.temp).then(() => {
         // this.dialogFormVisible = false;
         this.$notify({
           title: "Success",
-          message: "Created Successfully",
+          message: "创建成功",
           type: "success",
         });
         this.$router.push("/projectList");

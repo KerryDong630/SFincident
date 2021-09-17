@@ -174,7 +174,7 @@ export default {
   },
   created() {
     this.getUsersList();
-    this.getList();
+  
   },
   methods: {
     getUName(user) {
@@ -182,10 +182,10 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
+        this.getList();
       });
     },
     getId(index) {
@@ -228,7 +228,6 @@ export default {
       this.pvData = [];
       this.dialogPvVisible = true;
       getProject(pro_name).then((response) => {
-        console.log(response);
         this.getPvData(response);
       });
     },
@@ -242,7 +241,6 @@ export default {
     },
     getPvData(response) {
       for (var v in response) {
-        console.log(v);
         this.pvData.push({
           value: response[v],
           lable: this.lables[v],
@@ -257,7 +255,6 @@ export default {
       this.pvData = [];
       this.dialogPvVisible = true;
       getProject(pro_name).then((response) => {
-        console.log(response);
         this.getPvData(response);
       });
     },
@@ -304,7 +301,6 @@ export default {
           });
         }
       }
-      console.log(this.tableColumnList);
     },
     getList() {
       this.listLoading = true;

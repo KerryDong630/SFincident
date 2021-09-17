@@ -164,7 +164,6 @@ export default {
   },
   computed: {
     getPrcessor: function () {
-      console.log("join");
       if (this.form.co_experimenter) {
         return this.form.co_experimenter.join(",");
       }
@@ -239,13 +238,11 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log(row);
           row["component_status1"] = 3; //已完成
           //row['experiment_sheet_id'] = null;
           putAssignProcess({
             data: [row],
           }).then((respones) => {
-            console.log(respones);
             this.$notify({
               title: "Success",
               message: "提交成功",
@@ -298,7 +295,7 @@ export default {
       var flag = true;
       try {
         this.form.componentlist.forEach((element) => {
-          if ( (element["component_status1"] !== 3) || (element["component_status1"] !== 5)) {
+          if ( (element["component_status1"] !== 3) && (element["component_status1"] !== 5)) {
             flag = false;
             throw new Error("End Loop");
           }
@@ -312,7 +309,6 @@ export default {
       };
 
       checkProcess(result).then((respones) => {
-        console.log(respones);
         this.$notify({
           title: "Success",
           message: "提交成功",
@@ -322,8 +318,8 @@ export default {
       });
     },
     onSubmit() {
-      //var flag = this.checkStatus();
-      var flag = true;
+      var flag = this.checkStatus();
+      //var flag = true;
       if (flag) {
         this.open(this.submitProcess);
       } else {
@@ -343,7 +339,6 @@ export default {
     },  
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         this.users = response.data;
          response.data.forEach(ele=>{
           this.userName[ele.username] = ele.u_name
@@ -351,9 +346,7 @@ export default {
       });
     },
     getAssignList() {
-      console.log(this.process_id);
       getAssignProcess(this.process_id).then((response) => {
-        console.log(response);
         this.form = response.data;
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });

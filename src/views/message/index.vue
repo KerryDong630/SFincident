@@ -91,7 +91,7 @@ export default {
     },
     getMessageList() {
       getMessageList().then((response) => {
-        console.log(response);
+        ;
         this.messageList = response.data;
       });
     },

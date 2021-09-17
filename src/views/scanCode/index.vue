@@ -43,7 +43,6 @@ export default {
             audio: false,
           };
           let video = document.getElementById("v");
-          console.log(video);
           let media = navigator.getUserMedia(
             constraints,
             function (stream) {

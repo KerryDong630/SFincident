@@ -107,7 +107,6 @@ export default {
         return this.roles[e]
       });
       this.form.u_authority = str.join(",")
-      console.log(this.form);
       putUser(this.form).then((response) => {
          this.$notify({
           title: "Success",
@@ -134,7 +133,6 @@ export default {
         // this.dialogFormVisible = false;
 
         this.form = response;
-        console.log(this.form);
         this.checkedRoles = this.form.u_authority.split(",").map((element) => {
           for (var k in this.roles) {
             if (roles[k] == element) {
@@ -143,7 +141,7 @@ export default {
           }
         });
         //this.checkedRoles = this.form.u_authority.split(",");
-        console.log(this.checkedRoles);
+    
       });
     },
     onCancle() {

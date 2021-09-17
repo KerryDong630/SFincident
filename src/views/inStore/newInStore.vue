@@ -306,13 +306,11 @@ export default {
         e["component_status"] = 1; //确认入库
         delete e["id"];
       });
-      console.log(this.form);
-      console.log(this.tableData);
+   
       addInstore(this.form).then(() => {
         putAssignProcess({
           data: this.tableData,
         }).then((respones) => {
-          console.log(respones);
 
           this.$notify({
             title: "Success",
@@ -323,7 +321,7 @@ export default {
         // this.dialogFormVisible = false;
         this.$notify({
           title: "Success",
-          message: "Created Successfully",
+          message: "创建成功",
           type: "success",
         });
         this.$router.push({
@@ -366,7 +364,7 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.form.check_form_id = response.file_id;
 
           this.$notify({
@@ -384,7 +382,7 @@ export default {
       getTemFileId(4).then((response) => {
         this.check_form_id = response.f_id;
         // getTemFile(f_id).then(response=>{
-        //   console.log(response)
+        //   
         // })
       });
     },
@@ -476,7 +474,6 @@ export default {
     upLoad() {},
     getSelection() {
       programsParameters().then((response) => {
-        console.log(response);
         this.selections = response.data;
       });
     },
@@ -488,12 +485,11 @@ export default {
       //this.form.create_name = store.getters.name;
       //this.form.store_name = "" ? store.getters.name : this.form.store_name;
       this.is_num = parseInt(this.is_num);
-      console.log(this.form);
       addInstore(this.form).then(() => {
         // this.dialogFormVisible = false;
         this.$notify({
           title: "Success",
-          message: "Created Successfully",
+          message: "创建成功",
           type: "success",
         });
         this.$router.push("/inStore");

@@ -5,13 +5,13 @@
 
     <el-main>
       <div class="tool-button">
-        <el-button
+        <!-- <el-button
           type="primary"
           size="mini"
           @click="addTemplate"
           icon="el-icon-plus"
           >添加新派工模板</el-button
-        >
+        > -->
       </div>
       <el-row
         v-for="(value, key) in template"
@@ -126,7 +126,6 @@ export default {
     add() {},
     getList() {
       getEpxList().then((response) => {
-        console.log(response);
         this.listTable = response.data;
         var obj = this.listTable[0];
         for (var v in obj) {
@@ -140,7 +139,6 @@ export default {
     getTemplateEx() {
       getTemplateEx().then((response) => {
         this.template = response;
-        console.log(this.template);
       });
     },
   },

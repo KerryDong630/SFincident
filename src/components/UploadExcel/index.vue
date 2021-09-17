@@ -4,9 +4,9 @@
     <div class="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
       Drop excel file here or
       <el-button :loading="loading" style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">
-        Browse
+        上传
       </el-button>
-    </div>
+    </div> 
   </div>
 </template>
 
@@ -90,7 +90,7 @@ export default {
           const worksheet = workbook.Sheets[firstSheetName]
           const header = this.getHeaderRow(worksheet)
           const results = XLSX.utils.sheet_to_json(worksheet)
-          console.log(results,header)
+          
           this.generateData({ header, results })
           this.loading = false
           resolve()

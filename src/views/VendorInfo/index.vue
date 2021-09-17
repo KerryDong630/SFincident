@@ -39,7 +39,6 @@ export default {
   methods: {
     getList() {
       getCompanys().then((response) => {
-        console.log(response);
         this.listTable = response.data;
         var obj = this.listTable[0];
         for (var v in obj) {

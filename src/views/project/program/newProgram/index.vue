@@ -260,7 +260,6 @@ export default {
     this.getUrl();
     getSelectProject().then((response) => {
       this.select = response.data;
-      console.log(response);
     });
   },
   mounted: function () {
@@ -337,7 +336,7 @@ export default {
       getTemFileId(1).then((response) => {
         this.order_id = response.f_id;
         // getTemFile(f_id).then(response=>{
-        //   console.log(response)
+        //   
         // })
       });
     },
@@ -352,7 +351,7 @@ export default {
       }
     },
     handleSuccess(response, file, index) {
-      console.log(response);
+      ;
       console.log(index);
     },
     onError(err) {
@@ -375,10 +374,10 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.form[this.formid] = response.file_id;
 
-          console.log(response);
+          ;
         })
         .catch((error) => {
           console.log(error);
@@ -414,9 +413,8 @@ export default {
           this.form["pro_id"] = element.key;
         }
       });
-      console.log(this.form);
       addProgram(this.form).then((response) => {
-        console.log(response);
+        ;
         this.$notify({
           title: "Success",
           message: "创建项目成功",

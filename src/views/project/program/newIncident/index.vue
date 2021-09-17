@@ -294,6 +294,7 @@ import { getTemFileId, getTemFile } from "@/api/file";
 import global_msg from "@/utils/global";
 import { parseTime } from "@/utils";
 import { addOutstore } from "@/api/inStore";
+import { Message } from 'element-ui';
 
 //import { getUsersList } from "@/api/user";
 
@@ -475,7 +476,7 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           this.listTable[this.index].experiment_sheet_id = response.file_id;
 
           this.$notify({
@@ -512,7 +513,6 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         this.users = response.data;
       });
     },
@@ -537,23 +537,22 @@ export default {
       this.listTable.splice(index + 1, 0, {
         step_number: index + 1,
       });
-
-      console.log(index);
     },
     deleteRow(index, row) {
       this.listTable = this.deleteIndex(this.listTable, index);
       this.listTable.splice(index, 1);
-
-      console.log(index);
     },
     getRange(row, index) {
-      console.log(row.start_time_d)
       var d1 = row.start_time_d;
       var d2 = row.end_time_d;
-      
-      var stime = new Date(d1.slice(4,6) + "-"+d1.slice(6,8)+'-'+d1.slice(0,4));
-      var etime = new Date(d2.slice(4,6) + "-"+d2.slice(6,8)+'-'+d2.slice(0,4));
-      var range =  parseInt(Math.abs(etime  -  stime)  /  1000  /  60  /  60  /24)
+
+      var stime = new Date(
+        d1.slice(4, 6) + "-" + d1.slice(6, 8) + "-" + d1.slice(0, 4)
+      );
+      var etime = new Date(
+        d2.slice(4, 6) + "-" + d2.slice(6, 8) + "-" + d2.slice(0, 4)
+      );
+      var range = parseInt(Math.abs(etime - stime) / 1000 / 60 / 60 / 24);
       //var range = parseInt(total / (24*60*60))
       //var range = row.end_time_d - row.start_time_d;
       if (this.listTable[index + 1]) {
@@ -576,12 +575,10 @@ export default {
           });
         }
       }
-      console.log(this.tableColumnList);
     },
     typeChange() {
       var data = this.template[this.form.experi_type];
       this.listTable = [];
-      console.log(this.template);
       data.forEach((element) => {
         var obj = {};
         obj["step_number"] = element["experi_step"];
@@ -595,7 +592,6 @@ export default {
         this.listTable.push(obj);
       });
 
-      console.log(this.listTable);
       this.listTable.forEach((element) => {
         var type = this.form.experi_type; //工单类型
         var step = element.step_number; //工序步骤
@@ -605,7 +601,6 @@ export default {
         getTemFileId(pKey).then((response) => {
           this.templateFile[pKey] = response.f_id;
         });
-        console.log(this.templateFile);
       });
 
       //this.getTableColumnList(this.listTable);
@@ -627,7 +622,6 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      console.log(val);
     },
     getComponent() {
       const loading = this.$loading({
@@ -638,7 +632,6 @@ export default {
       });
       addExComponent(this.form.order_number)
         .then((response) => {
-          console.log(response);
           this.componentList = response.data;
           loading.close();
         })
@@ -646,6 +639,25 @@ export default {
           console.log(err);
           loading.close();
         });
+    },
+    onCheck() {
+      var flag = true;
+      // 校验是否所有的工序被分配
+      for (var i = 0, len = this.listTable.length; i < len; i++) {
+        if( (this.listTable[i]['end_time_d'] == "") || !('process_owner' in this.listTable[i] ) || ( this.listTable[i]['start_time_d'] == "")){
+              flag = false;
+              return flag;
+              break;
+        }
+    
+      }
+
+      //校验是否有试验件被分配
+      if(this.testList.length == 0){
+            flag = false;
+            return flag;
+      }
+       return flag;
     },
     createOutStore() {
       var form = {
@@ -674,9 +686,7 @@ export default {
       });
       this.form["process_list"] = this.listTable;
       this.form["component_list"] = this.testList;
-      console.log(this.form);
       addIncident(this.form).then((response) => {
-        console.log(response);
         this.$notify({
           title: "Success",
           message: "成功创建工单",
@@ -688,7 +698,13 @@ export default {
       });
     },
     onSubmit() {
-      this.createOutStore();
+      if(this.onCheck()) {
+        //print('success');
+        this.createOutStore();
+      }else{
+        Message.error("有未被分配的工序或没有分配的试验件，请检查！")
+      }
+     
     },
     add() {
       this.dialogPvVisible = true;
@@ -696,7 +712,6 @@ export default {
     },
     getSelection() {
       programsParameters().then((response) => {
-        console.log(response);
         this.selections = response.data;
       });
     },

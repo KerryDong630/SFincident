@@ -229,7 +229,7 @@ export default {
       uploadFile(param)
         .then((response) => {
           // TODO 一些关闭弹框，上传成功提示等
-          //console.log(response);
+          //;
           var file_id = response.file_id;
 
           this.$notify({
@@ -241,7 +241,6 @@ export default {
           putAssignProcess({
             data: [this.currentRow],
           }).then((respones) => {
-            console.log(respones);
             this.$notify({
               title: "Success",
               message: "提交成功",
@@ -281,7 +280,6 @@ export default {
     },
     downloadComponent(index, row) {
       var sheet_id = this.form.experiment_sheet_id;
-      console.log(sheet_id)
       this.fileName =
         this.form.order_number +
         "_" +
@@ -348,7 +346,6 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log(row);
           reportFailure(row.component_unique_id).then((response) => {
             this.$message({
               type: "success",
@@ -365,11 +362,10 @@ export default {
         });
     },
     submitComponent: function (row) {
-      console.log(row)
-      // if(!row.experiment_sheet_id){
-      //    this.$message.error("请上传实验单再提交！");
-      //   return;
-      // }
+      if(!row.experiment_sheet_id){
+         this.$message.error("请上传实验单再提交！");
+        return;
+      }
       //试验件状态变为待审核
       this.$confirm("确定提交此试验件?", "提示", {
         confirmButtonText: "确定",
@@ -377,12 +373,10 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log(row);
           row["component_status1"] = 4;
           putAssignProcess({
             data: [row],
           }).then((respones) => {
-            console.log(respones);
             this.$notify({
               title: "Success",
               message: "提交成功",
@@ -411,7 +405,6 @@ export default {
         process_status: 2, //工序状态变为已分配
       };
       putAssignProcess(result).then((respones) => {
-        console.log(respones);
 
         this.$notify({
           title: "Success",
@@ -420,7 +413,6 @@ export default {
         });
       });
       putProcessStatus(processStatus).then((response) => {
-        console.log(response);
         this.$notify({
           title: "Success",
           message: "分配成功",
@@ -441,7 +433,6 @@ export default {
     },  
     getUsersList() {
       getUsersList().then((response) => {
-        console.log(response);
         this.users = response.data;
           response.data.forEach(ele=>{
           this.userName[ele.username] = ele.u_name
@@ -451,7 +442,6 @@ export default {
     getAssignList() {
       console.log(this.process_id);
       getAssignProcess(this.process_id).then((response) => {
-        console.log(response);
         this.form = response.data;
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });
