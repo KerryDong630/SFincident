@@ -7,7 +7,7 @@
         <el-row :gutter="40">
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="用户名">
-              <el-input v-model="form.username"></el-input>
+              <el-input v-model="form.username" disabled></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">

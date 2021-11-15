@@ -16,11 +16,11 @@ export function processOverview(role_type) {
   })
 }
 
-export function getAssignProcess(process_id) {
+export function getAssignProcess(process_id,role_type) {
   return requestdev({
     url: '/getAssignList',
     method: 'get',
-    params: { process_id }
+    params: { process_id,role_type }
   })
 }
 export function putAssignProcess(data) {

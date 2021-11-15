@@ -56,7 +56,9 @@
           :description="'当前工序负责人:' + pre.process_owner"
         ></el-step>
       </el-steps>
-      <el-checkbox v-model="checked" style="margin-top: 20px">是否全部分配</el-checkbox>
+      <el-checkbox v-model="checked" style="margin-top: 20px"
+        >是否全部分配</el-checkbox
+      >
       <el-table
         stripe
         border
@@ -107,9 +109,8 @@
             </el-select>
           </template>
         </el-table-column>
-        
+
         <el-table-column fixed="right" label="操作" width="150">
-          
           <template slot-scope="scope">
             <el-button
               type="text"
@@ -153,7 +154,7 @@ export default {
       program_form_url: "",
       form_url: "",
       fileName: "",
-      checked:false,
+      checked: false,
       componentStatus,
       current_step: null,
       process_id: null,
@@ -264,25 +265,27 @@ export default {
           });
         });
     },
-    mutipleCheck(){
-      if(this.checked){
-          //若批量分配
-          var experimenter = this.form.componentlist[0]['experimenter']
-          console.log(experimenter)
-          this.form.componentlist.forEach(ele=>{
-            if(ele.component_status1 !== 5){   //若试验件状态不为报废
-              ele['experimenter'] = experimenter;
-
-            }
-          });
-
+    mutipleCheck() {
+      if (this.checked) {
+        //若批量分配
+        var experimenter = this.form.componentlist[0]["experimenter"];
+        console.log(experimenter);
+        this.form.componentlist.forEach((ele) => {
+          if (ele.component_status1 !== 5) {
+            //若试验件状态不为报废
+            ele["experimenter"] = experimenter;
+          }
+        });
       }
     },
     checkOnSubmit() {
-     this.mutipleCheck();
+      this.mutipleCheck();
       for (var i = 0; i < this.form.componentlist.length; i++) {
         var element = this.form.componentlist[i];
-        if ((!element["experimenter"] || element["experimenter"].trim() == "") && element.component_status1 !== 5) {
+        if (
+          (!element["experimenter"] || element["experimenter"].trim() == "") &&
+          element.component_status1 !== 5
+        ) {
           this.$message.error("有未被分配试验员的试验件！请检查");
           return;
         }
@@ -298,13 +301,13 @@ export default {
       var result = {
         data: this.form.componentlist,
       };
+      var co_experi = this.getExperimenter(this.form.componentlist);
       var processStatus = {
         process_id: this.process_id,
         process_status: 2, //工序状态变为已分配
-        experimenter: this.form.componentlist[0].experimenter,
+        experimenter: ""
       };
       putAssignProcess(result).then((respones) => {
-
         this.$notify({
           title: "Success",
           message: "分配成功",
@@ -322,6 +325,25 @@ export default {
         });
       });
     },
+    getExperimenter(arr) {
+      var experimenters = arr.map((ele) => {
+        return ele.experimenter;
+      });
+      return this.unique(experimenters);
+    },
+    unique(arr) {
+      if (!Array.isArray(arr)) {
+        console.log("type error!");
+        return;
+      }
+      var array = [];
+      for (var i = 0; i < arr.length; i++) {
+        if (array.indexOf(arr[i]) === -1) {
+          array.push(arr[i]);
+        }
+      }
+      return array;
+    },
     onCancle() {},
     getCurrentStep(process_id, processes) {
       processes.forEach((element, index) => {
@@ -336,7 +358,8 @@ export default {
       });
     },
     getAssignList() {
-      getAssignProcess(this.process_id).then((response) => {
+      var role_type = "process_owner";
+      getAssignProcess(this.process_id, role_type).then((response) => {
         this.form = response.data;
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });

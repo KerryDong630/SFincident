@@ -46,3 +46,19 @@ export function postAlter(data) {
     data
   })
 }
+
+export function getAlterData() {
+  return requestdev({
+    url: '/alterDataList',
+    method: 'get',
+    
+  })
+}
+
+export function deleteAlterData(id) {
+  return requestdev({
+    url: '/alterData/'+id,
+    method: 'delete'
+    
+  })
+}

@@ -7,12 +7,12 @@
         <el-row :gutter="40">
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="用户名">
-              <el-input v-model="form.username" placeholder="用户名保证唯一性,不可为中文"></el-input>
+              <el-input v-model="form.username" placeholder="用户名保证唯一性,不可为中文" @change="checkName(form.username)"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
             <el-form-item label="工号">
-              <el-input v-model="form.u_id" placeholder="工号保证唯一性，不可为中文"></el-input>
+              <el-input v-model="form.u_id" placeholder="工号保证唯一性，不可为中文" @change="checkID(form.u_id)"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8">
@@ -82,7 +82,7 @@ const roles = {
   基础资料: "information",
   用户管理: "admin",
 };
-import { addUser } from "@/api/user";
+import { addUser,checkID,checkName } from "@/api/user";
 import { deepCopy } from "@/utils/index";
 export default {
   data() {
@@ -105,6 +105,13 @@ export default {
     };
   },
   methods: {
+    checkName(name){
+      checkName(name).then(res=>{
+        console.log(res)
+      }).catch(error=>{
+        console.log(error)
+      })
+    },
     handleCheckedChange(value) {
       this.form["u_authority"] = [];
       var that = this;

@@ -144,16 +144,16 @@
       >
       </el-table-column>
       <el-table-column
-        key="process_status"
+        key="subProStatus"
         label="状态"
-        prop="process_status"
+        prop="subProStatus"
         :filters="statusFilters"
         :filter-method="filterHandler"
         sortable
       >
         <template slot-scope="scope">
-          <label :style="{ color: getColor(scope.row.process_status) }">{{
-            getStatus(scope.row.process_status)
+          <label :style="{ color: getColor(scope.row.subProStatus) }">{{
+            getStatus(scope.row.subProStatus)
           }}</label>
         </template>
       </el-table-column>
@@ -173,7 +173,7 @@
           <el-button
             type="text"
             size="small"
-            v-if="scope.row.process_status == 2"
+            v-if="scope.row.subProStatus == 2"
             @click="pickProcess(scope.row)"
           >
             领取
@@ -225,7 +225,7 @@ const lables = {
   experimenter: "试验员",
   start_time_d: "开始时间",
   end_time_d: "结束时间",
-  process_status: "状态",
+  subProStatus: "状态",
   pro_name: "项目名称",
   process_id: "工序编号",
 };
@@ -301,7 +301,7 @@ export default {
       return row[property] === value;
     },
     putComponentStatus(process_id) {
-      getAssignProcess(process_id).then((response) => {
+      getAssignProcess(process_id,'experimenter').then((response) => {
         var components = response.data.componentlist;
         components = components.filter(function (ele) {
           if (ele["component_status1"] !== 5) {

@@ -1,7 +1,7 @@
 
 <template>
   <el-container>
-    <el-header style="line-height: 60px"> 实验派工管理 </el-header>
+    <el-header style="line-height: 60px"> 试验派工管理 </el-header>
 
     <el-main>
       <div class="tool-button">

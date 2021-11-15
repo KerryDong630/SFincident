@@ -38,7 +38,7 @@ export function changeUser(id,data) {
 }
 export function putUser(data) {
   return requestdev({
-    url: '/users',
+    url: '/updateUsers',
     method: 'put',
     data
   })
@@ -64,6 +64,19 @@ export function logout() {
   return requestdev({
     url: '/auth',
     method: 'post'
+  })
+}
+
+export function checkName(name) {
+  return requestdev({
+    url: '/checkUserName/'+name,
+    method: 'get'
+  })
+}
+export function checkID(ID) {
+  return requestdev({
+    url: '/checkUserName/'+ID,
+    method: 'get'
   })
 }
 // export function login(data) {

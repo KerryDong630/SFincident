@@ -89,9 +89,9 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
           <template slot-scope="{ row }">
-            <!-- <el-button type="text" size="small" @click="updateRole(row)">
+            <el-button type="text" size="small" @click="updateRole(row)">
               编辑
-            </el-button> -->
+            </el-button>
             <el-button type="text" size="small" @click="confirmDelete(row)">
               删除
             </el-button>
@@ -141,7 +141,7 @@ const showLable = {
   u_department: "部门",
   username: "账号",
   u_email: "邮箱",
-  u_id: "用户名",
+  u_id: "员工工号",
   u_name: "员工姓名",
   u_tele: "手机号",
 };

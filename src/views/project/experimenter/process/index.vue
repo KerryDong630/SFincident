@@ -441,7 +441,8 @@ export default {
     },
     getAssignList() {
       console.log(this.process_id);
-      getAssignProcess(this.process_id).then((response) => {
+      var role_type = 'experimenter' //实验员
+      getAssignProcess(this.process_id,role_type).then((response) => {
         this.form = response.data;
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });

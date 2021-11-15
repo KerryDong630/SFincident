@@ -14,16 +14,18 @@
           icon="el-icon-download"
         ></el-button> -->
         <el-button type="primary" @click="open">提交</el-button>
+        <el-button type="primary" @click="change">修改</el-button>
       </div>
       <el-table
-        :data="list"
+       
+        :data="list.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+
         border
         fit
         v-loading="loading"
         highlight-current-row
         stripe
         style="width: 100%"
-       
       >
         <el-table-column key="id" label="设备编号" prop="id" sortable>
         </el-table-column>
@@ -33,6 +35,12 @@
           prop="equipment_model"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.equipment_model"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="equipment_type"
@@ -40,6 +48,12 @@
           prop="equipment_type"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.equipment_type"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -48,6 +62,12 @@
           prop="equipment_name"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.equipment_name"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="equipment_company"
@@ -55,6 +75,12 @@
           prop="equipment_company"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.equipment_company"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="location"
@@ -62,6 +88,12 @@
           prop="location"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.location"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measuring_time"
@@ -69,6 +101,12 @@
           prop="measuring_time"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measuring_time"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measuring_period"
@@ -76,6 +114,12 @@
           prop="measuring_period"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measuring_period"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measuring_id"
@@ -83,13 +127,25 @@
           prop="measuring_id"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measuring_id"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measure_part"
-          label="计量结构"
+          label="计量机构"
           prop="measure_part"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measure_part"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measuring_para"
@@ -97,6 +153,12 @@
           prop="measuring_para"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measuring_para"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column
           key="measuring_res"
@@ -104,12 +166,30 @@
           prop="measuring_res"
           sortable
         >
+          <template slot-scope="scope">
+            <el-input
+              v-model="scope.row.measuring_res"
+              :disabled="ifEdit"
+            ></el-input>
+          </template>
         </el-table-column>
         <el-table-column key="status" label="状态" prop="status" sortable>
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.status" :disabled="ifEdit"></el-input>
+          </template>
         </el-table-column>
         <el-table-column key="action" label="操作" prop="action" sortable>
         </el-table-column>
       </el-table>
+      <div style="text-align: center; margin-top: 30px">
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total"
+          @current-change="current_change"
+        >
+        </el-pagination>
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -142,12 +222,19 @@ export default {
   },
   data() {
     return {
+      total: 0,
+      pagesize: 10,
+      currentPage: 1,
+      ifEdit: true,
       lables,
       loading: false,
       list: [],
     };
   },
   methods: {
+    change() {
+      this.ifEdit = false;
+    },
     handleSuccess({ results, header }) {
       //header.push("试验件编号");
       // results.forEach((element) => {
@@ -182,7 +269,6 @@ export default {
       postEquipmentList({
         data: this.list,
       }).then((res) => {
-      
         this.loading = false;
         this.$notify({
           title: "Success",
@@ -207,11 +293,18 @@ export default {
       getEquipmentList().then((res) => {
         this.loading = false;
         this.list = res;
+        this.total= this.list.length;
       });
     },
+     current_change:function(currentPage){
+        this.currentPage = currentPage;
+      },
   },
 };
 </script>
 
 <style>
+.el-input.is-disabled .el-input__inner {
+  color: #797b81 !important;
+}
 </style>

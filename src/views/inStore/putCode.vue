@@ -180,6 +180,7 @@ import { deepCopy } from "@/utils";
 import global_msg from "@/utils/global";
 import { getRulesList } from "@/api/rule";
 import { getInstore } from "@/api/inStore";
+import { Message } from 'element-ui';
 const newObj = {
   orderNum: "",
   testType: "",
@@ -206,6 +207,7 @@ export default {
       ],
       sourceUrl: "",
       form_id: "",
+      is_num:0,
       input:"",
       filename: "",
       autoWidth: true,
@@ -260,13 +262,14 @@ export default {
   mounted: function () {
     this.order_number = this.$route.query.order_number;
     this.instore_id = this.$route.query.id;
-    this.is_num = this.getStoreInfo(this.instore_id);
+    this.getStoreInfo(this.instore_id);
     //this.getList(this.order_number);
   },
   methods: {
     getStoreInfo(id) {
       getInstore(id).then((response) => {
-        return response.is_num;
+        console.log(response.is_num)
+       this.is_num = response.is_num;
       });
     },
     getRules() {
@@ -384,10 +387,11 @@ export default {
         });
         this.tableHeader = ["编号", "试验件原始编号", "试验件编号"];
       }
-      // if (data.length !== this.is_num) {
-      //   this.$message.error('提交数量和入库试验件数量不相符，请检查！')
-      //   return
-      // }
+      if (data.length !== this.is_num) {
+     
+        this.$message.error('提交数量:'+data.length+',入库试验件数量:'+this.is_num+'，数量不相符，请检查！')
+        return
+      }
       
       var result = {
         data: data,
@@ -475,8 +479,10 @@ export default {
       return uuid;
     },
     generateCode() {
+
       if (this.ifOrigCode) {
-        this.tableHeader.push("试验件编号");
+        if(this.tableHeader.length == 2){
+           this.tableHeader.push("试验件编号");
 
         this.tableData.forEach((e) => {
           if (this.checked) {
@@ -485,6 +491,11 @@ export default {
             e["试验件编号"] = this.input + "-" + e.试验件原始编号;
           }
         });
+        }else{
+          Message.error('不可重复生成试验件编号');
+          return;
+        }
+       
       } else {
         this.tableDataNoOrig.forEach((e) => {
           e["component_unique_id"] = this.generateRuleId(e);

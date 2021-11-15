@@ -346,7 +346,8 @@ export default {
       });
     },
     getAssignList() {
-      getAssignProcess(this.process_id).then((response) => {
+      var role_type = "process_owner"
+      getAssignProcess(this.process_id,role_type).then((response) => {
         this.form = response.data;
         this.getCurrentStep(this.form.process_id, this.form.processes);
       });

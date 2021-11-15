@@ -3,7 +3,7 @@
     <el-header class="app-header"> 项目管理 </el-header>
     <el-main>
       <div class="tool-button">
-        <el-button type="primary"  @click="toData">数据维护</el-button>
+        <el-button type="primary" @click="toData">数据维护</el-button>
         <el-button type="primary" @click="add" icon="el-icon-plus"></el-button>
         <el-button
           type="primary"
@@ -102,8 +102,30 @@
               <el-form-item :label="data.lable">
                 <el-input
                   v-model="data.value"
+                  v-if="data.key !== 'res_name'"
                   v-bind:disabled="disable(data.key)"
                 ></el-input>
+                <el-select
+                  placeholder="实验主管"
+                  clearable
+                  style="width: 100%"
+                  v-model="data.value"
+                  v-if="data.key == 'res_name'"
+                  class="filter-item"
+                >
+                  <el-option
+                    v-for="item in userList"
+                    :key="item.username"
+                    :label="item.u_name"
+                    :value="item.username"
+                  >
+                    <span style="float: left">{{ item.u_name }}</span>
+                    <span
+                      style="float: right; color: #8492a6; font-size: 13px"
+                      >{{ item.username }}</span
+                    >
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -163,6 +185,7 @@ export default {
       list: null,
       pvData: [],
       users: {},
+      userList: [],
       statusTypeOptions,
       listLoading: true,
       listQuery: {
@@ -174,7 +197,6 @@ export default {
   },
   created() {
     this.getUsersList();
-  
   },
   methods: {
     getUName(user) {
@@ -182,6 +204,7 @@ export default {
     },
     getUsersList() {
       getUsersList().then((response) => {
+        this.userList = response.data;
         response.data.forEach((ele) => {
           this.users[ele.username] = ele.u_name;
         });
@@ -233,7 +256,7 @@ export default {
     },
     disable(value) {
       //console.log(value);
-      if (value == "finish_time" && this.update) {
+      if (value !== "create_name" && value !== "create_time") {
         return false;
       } else {
         return true;
@@ -247,6 +270,7 @@ export default {
           key: v,
         });
       }
+      console.log(this.pvData);
     },
     showDetail(row) {
       this.isUpdate = false;
@@ -287,8 +311,8 @@ export default {
     add() {
       this.$router.push({ path: "/newPoject" });
     },
-    toData(){
-       this.$router.push({ path: "/pieData" });
+    toData() {
+      this.$router.push({ path: "/pieData" });
     },
     getTableColumnList(list) {
       this.tableColumnList = [];
